@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState, useEffect } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { CheckCircle2, Loader2, Send } from "lucide-react";
 import { submitContact } from "@/app/actions/contact";
 import { INITIAL_CONTACT_STATE, BUDGET_VALUES, type ContactFieldErrors } from "@/lib/schemas";
@@ -73,43 +73,38 @@ export function ContactForm({ defaultService, defaultPackage }: Props) {
 
   return (
     <div className="relative">
-      <AnimatePresence mode="wait">
-        {state.status === "success" ? (
-          <motion.div
-            key="success"
-            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-start gap-4 rounded-card border border-success/30 bg-success/5 p-8"
-            role="status"
-            aria-live="polite"
+      {state.status === "success" ? (
+        <motion.div
+          initial={reduced ? { opacity: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-start gap-4 rounded-card border border-success/30 bg-success/5 p-8"
+          role="status"
+          aria-live="polite"
+        >
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-success/20 text-success">
+            <CheckCircle2 className="h-6 w-6" />
+          </span>
+          <div className="flex flex-col gap-1.5">
+            <h3 className="font-display text-xl font-semibold text-foreground">Message sent.</h3>
+            <p className="text-sm text-muted">{state.message}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              window.location.reload();
+            }}
+            className="text-sm font-medium text-brand-orange hover:text-brand-orange-soft"
           >
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-success/20 text-success">
-              <CheckCircle2 className="h-6 w-6" />
-            </span>
-            <div className="flex flex-col gap-1.5">
-              <h3 className="font-display text-xl font-semibold text-foreground">Message sent.</h3>
-              <p className="text-sm text-muted">{state.message}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                window.location.reload();
-              }}
-              className="text-sm font-medium text-brand-orange hover:text-brand-orange-soft"
-            >
-              Send another →
-            </button>
-          </motion.div>
-        ) : (
-          <motion.form
-            key="form"
-            action={formAction}
-            initial={false}
-            className="flex flex-col gap-5 rounded-card border border-border bg-surface/40 p-6 md:p-8"
-            noValidate
-          >
+            Send another →
+          </button>
+        </motion.div>
+      ) : (
+        <form
+          action={formAction}
+          className="flex flex-col gap-5 rounded-card border border-border bg-surface/40 p-6 md:p-8"
+          noValidate
+        >
             {state.status === "error" ? (
               <div
                 role="alert"
@@ -269,9 +264,8 @@ export function ContactForm({ defaultService, defaultPackage }: Props) {
                 </>
               )}
             </button>
-          </motion.form>
-        )}
-      </AnimatePresence>
+          </form>
+      )}
     </div>
   );
 }
