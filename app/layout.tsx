@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { LeoWidget } from "@/components/leo/leo-widget";
 import { JsonLd } from "@/components/seo/json-ld";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { organizationLd, localBusinessLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -85,6 +86,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <LeoWidget />
+        <GoogleAnalytics />
       </body>
     </html>
   );
