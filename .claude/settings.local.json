@@ -5,7 +5,8 @@
       "Bash(Get-Content app/page.tsx, components/sections/*.tsx, components/layout/*.tsx, components/ui/*.tsx -ErrorAction SilentlyContinue)",
       "Bash(Select-String -Pattern \"Image|import.*Image\")",
       "Bash(npx tsc *)",
-      "Bash(echo \"---exit=$?\")"
+      "Bash(echo \"---exit=$?\")",
+      "PowerShell($cmd = Get-Command ffmpeg -ErrorAction SilentlyContinue; if \\($cmd\\) { $cmd.Source } else { \"not found\" }; winget list --id Gyan.FFmpeg 2>$null | Select-String FFmpeg)"
     ]
   }
 }
