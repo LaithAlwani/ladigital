@@ -16,6 +16,21 @@ type Strings = {
   leadFormSuccess: string;
   leadFormSkip: string;
   poweredBy: string;
+  booking: {
+    prompt: string;
+    namePlaceholder: string;
+    emailPlaceholder: string;
+    consent: string;
+    submit: string;
+    submitting: string;
+    successTitle: string;
+    successBody: string;
+    join: string;
+    choosePrompt: string;
+    error: string;
+    manage: string;
+  };
+  suggestions: { label: string; kind: "send" | "book"; text?: string }[];
 };
 
 const dict: Record<Locale, Strings> = {
@@ -37,6 +52,26 @@ const dict: Record<Locale, Strings> = {
     leadFormSuccess: "Thanks — the team will reach out within one business day.",
     leadFormSkip: "No thanks, keep chatting",
     poweredBy: "Powered by Claude",
+    booking: {
+      prompt: "Pick a time that works for you:",
+      namePlaceholder: "Your name",
+      emailPlaceholder: "Email address",
+      consent: "I agree to be contacted about this call.",
+      submit: "Confirm booking",
+      submitting: "Booking…",
+      successTitle: "You're booked! 🎉",
+      successBody: "A confirmation email is on its way.",
+      join: "Join Google Meet",
+      choosePrompt: "Choose a time above to continue.",
+      error: "Couldn't book that slot. Please try another time.",
+      manage: "Reschedule or cancel",
+    },
+    suggestions: [
+      { label: "📅 Book a call", kind: "book" },
+      { label: "See plans & pricing", kind: "send", text: "What plans and pricing do you offer?" },
+      { label: "What's included?", kind: "send", text: "What's included in each plan?" },
+      { label: "How does it work?", kind: "send", text: "How does your process work?" },
+    ],
   },
   fr: {
     launcherLabel: "Parler à Leo",
@@ -56,6 +91,26 @@ const dict: Record<Locale, Strings> = {
     leadFormSuccess: "Merci — l'équipe vous contactera d'ici un jour ouvrable.",
     leadFormSkip: "Non merci, continuer la conversation",
     poweredBy: "Propulsé par Claude",
+    booking: {
+      prompt: "Choisissez un moment qui vous convient :",
+      namePlaceholder: "Votre nom",
+      emailPlaceholder: "Adresse courriel",
+      consent: "J'accepte d'être contacté au sujet de cet appel.",
+      submit: "Confirmer",
+      submitting: "Réservation…",
+      successTitle: "C'est réservé! 🎉",
+      successBody: "Un courriel de confirmation arrive.",
+      join: "Rejoindre Google Meet",
+      choosePrompt: "Choisissez un moment ci-dessus pour continuer.",
+      error: "Réservation impossible. Veuillez choisir un autre moment.",
+      manage: "Reporter ou annuler",
+    },
+    suggestions: [
+      { label: "📅 Réserver un appel", kind: "book" },
+      { label: "Forfaits et prix", kind: "send", text: "Quels forfaits et prix proposez-vous?" },
+      { label: "Qu'est-ce qui est inclus?", kind: "send", text: "Qu'est-ce qui est inclus dans chaque forfait?" },
+      { label: "Comment ça marche?", kind: "send", text: "Comment fonctionne votre processus?" },
+    ],
   },
 };
 

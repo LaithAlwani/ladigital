@@ -15,6 +15,7 @@ export type LeoUiMessage = {
   pending?: boolean;
   showLeadForm?: boolean;
   leadFormStatus?: "open" | "submitting" | "sent";
+  showBooking?: boolean;
 };
 
 export type LeoChatState = {
@@ -28,10 +29,16 @@ export type LeoChatApi = LeoChatState & {
   send: (text: string) => Promise<void>;
   submitLead: (input: { email: string; name?: string }) => Promise<void>;
   dismissLeadForm: (messageId: string) => void;
+  openBooking: () => void;
   clearError: () => void;
 };
 
 const LEAD_TOKEN = "<LEAD_CAPTURE>";
+const BOOK_TOKEN = "<BOOK_CALL>";
+
+function stripTokens(s: string): string {
+  return s.split(LEAD_TOKEN).join("").split(BOOK_TOKEN).join("");
+}
 
 function newId() {
   return Math.random().toString(36).slice(2, 10);
@@ -181,7 +188,7 @@ export function useLeoChat(): LeoChatApi {
 
             if (evt.type === "delta" && evt.text) {
               acc += evt.text;
-              const cleaned = acc.replace(LEAD_TOKEN, "").trimEnd();
+              const cleaned = stripTokens(acc).trimEnd();
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === assistantId ? { ...m, content: cleaned } : m,
@@ -194,23 +201,26 @@ export function useLeoChat(): LeoChatApi {
         }
 
         const hasLead = acc.includes(LEAD_TOKEN);
-        const finalContent = acc.replace(LEAD_TOKEN, "").trim();
+        const hasBooking = acc.includes(BOOK_TOKEN);
+        const finalContent = stripTokens(acc).trim();
 
         setMessages((prev) => {
-          // If Leo's only "content" was the lead sentinel, drop the empty
-          // bubble and attach the lead form to the last visible turn instead.
-          if (!finalContent && hasLead) {
+          // If Leo's only "content" was a sentinel, drop the empty bubble and
+          // attach the form/picker to the last visible turn instead.
+          if (!finalContent && (hasLead || hasBooking)) {
             const withoutPlaceholder = prev.filter((m) => m.id !== assistantId);
             if (withoutPlaceholder.length === 0) return withoutPlaceholder;
             const last = withoutPlaceholder[withoutPlaceholder.length - 1]!;
             return withoutPlaceholder.map((m) =>
               m.id === last.id
-                ? { ...m, showLeadForm: true, leadFormStatus: "open" as const }
+                ? hasBooking
+                  ? { ...m, showBooking: true }
+                  : { ...m, showLeadForm: true, leadFormStatus: "open" as const }
                 : m,
             );
           }
           if (!finalContent) {
-            // Empty reply with no lead intent — just remove the placeholder.
+            // Empty reply with no intent — just remove the placeholder.
             return prev.filter((m) => m.id !== assistantId);
           }
           return prev.map((m) =>
@@ -219,8 +229,9 @@ export function useLeoChat(): LeoChatApi {
                   ...m,
                   content: finalContent,
                   pending: false,
-                  showLeadForm: hasLead,
+                  showLeadForm: hasLead || undefined,
                   leadFormStatus: hasLead ? "open" : undefined,
+                  showBooking: hasBooking || undefined,
                 }
               : m,
           );
@@ -293,7 +304,30 @@ export function useLeoChat(): LeoChatApi {
     );
   }, []);
 
+  // Surface the interactive booking picker (from the "Book a call" chip).
+  const openBooking = useCallback(() => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: newId(),
+        role: "assistant",
+        content: leoStrings(locale).booking.prompt,
+        showBooking: true,
+      },
+    ]);
+  }, [locale]);
+
   const clearError = useCallback(() => setError(null), []);
 
-  return { messages, isStreaming, error, locale, send, submitLead, dismissLeadForm, clearError };
+  return {
+    messages,
+    isStreaming,
+    error,
+    locale,
+    send,
+    submitLead,
+    dismissLeadForm,
+    openBooking,
+    clearError,
+  };
 }

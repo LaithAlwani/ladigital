@@ -7,6 +7,8 @@ import { leoStrings } from "@/lib/leo-strings";
 import { LeoMessage } from "./leo-message";
 import { LeoInput } from "./leo-input";
 import { LeoLeadForm } from "./leo-lead-form";
+import { LeoBookingCard } from "./leo-booking-card";
+import { LeoSuggestions } from "./leo-suggestions";
 import { useLeoChat } from "./use-leo-chat";
 
 type Props = { open: boolean; onClose: () => void };
@@ -110,6 +112,7 @@ export function LeoPanel({ open, onClose }: Props) {
                     onDismiss={() => chat.dismissLeadForm(m.id)}
                   />
                 ) : null}
+                {m.showBooking ? <LeoBookingCard locale={chat.locale} /> : null}
               </Fragment>
             ))}
             {chat.error ? (
@@ -122,7 +125,13 @@ export function LeoPanel({ open, onClose }: Props) {
             ) : null}
           </div>
 
-          {/* Input */}
+          {/* Quick suggestions + input */}
+          <LeoSuggestions
+            locale={chat.locale}
+            onSend={chat.send}
+            onBook={chat.openBooking}
+            disabled={chat.isStreaming}
+          />
           <LeoInput
             locale={chat.locale}
             disabled={chat.isStreaming}

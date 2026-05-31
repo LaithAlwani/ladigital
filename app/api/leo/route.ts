@@ -74,21 +74,14 @@ export async function POST(req: Request) {
         });
 
         for await (const event of aStream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
             controller.enqueue(sseLine({ type: "delta", text: event.delta.text }));
           }
         }
 
         const final = await aStream.finalMessage();
         controller.enqueue(
-          sseLine({
-            type: "done",
-            usage: final.usage,
-            stopReason: final.stop_reason,
-          }),
+          sseLine({ type: "done", usage: final.usage, stopReason: final.stop_reason }),
         );
         controller.close();
       } catch (err) {
