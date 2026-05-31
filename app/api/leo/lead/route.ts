@@ -1,5 +1,5 @@
 import { render } from "@react-email/components";
-import { getResend } from "@/lib/resend";
+import { sendMail } from "@/lib/mailer";
 import { checkRateLimit, getRequestIp } from "@/lib/leo-rate-limit";
 import { leoLeadSchema } from "@/lib/schemas";
 import { siteConfig } from "@/lib/site-config";
@@ -43,19 +43,6 @@ export async function POST(req: Request) {
     });
   }
 
-  const resend = getResend();
-  if (!resend) {
-    // Dev mode without RESEND_API_KEY — log and pretend success so the UI can
-    // be tested without a live email account.
-    console.warn("[leo/lead] RESEND_API_KEY not set; skipping send.", {
-      email: parsed.data.email,
-    });
-    return new Response(JSON.stringify({ status: "ok", devMode: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
   let html: string;
   try {
     html = await render(LeoLead({ data: parsed.data }));
@@ -70,23 +57,14 @@ export async function POST(req: Request) {
   const displayName = parsed.data.name?.trim() || "a visitor";
   const langTag = parsed.data.language ? ` (${parsed.data.language})` : "";
 
-  try {
-    const { error } = await resend.emails.send({
-      from: siteConfig.resend.fromEmail,
-      to: siteConfig.resend.toEmail,
-      replyTo: parsed.data.email,
-      subject: `Leo chat lead — ${displayName}${langTag}`,
-      html,
-    });
-    if (error) {
-      console.error("[leo/lead] resend error", error);
-      return new Response(JSON.stringify({ error: "send_failed" }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-  } catch (err) {
-    console.error("[leo/lead] send failed", err);
+  const result = await sendMail({
+    to: siteConfig.mail.toEmail,
+    replyTo: parsed.data.email,
+    subject: `Leo chat lead — ${displayName}${langTag}`,
+    html,
+  });
+  if (!result.ok) {
+    console.error("[leo/lead] send failed", result.error);
     return new Response(JSON.stringify({ error: "send_failed" }), {
       status: 502,
       headers: { "Content-Type": "application/json" },

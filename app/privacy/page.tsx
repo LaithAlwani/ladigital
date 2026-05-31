@@ -72,18 +72,9 @@ export default function PrivacyPage() {
           <p>We rely on a small set of vendors to operate this site:</p>
           <ul>
             <li>
-              <strong>Resend</strong> (email delivery): when you submit the contact form, your
-              submission is sent through Resend so we can receive a notification email and send you
-              a confirmation. See{" "}
-              <a
-                href="https://resend.com/legal/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-orange hover:underline"
-              >
-                Resend's privacy policy
-              </a>
-              .
+              <strong>Email delivery (SMTP):</strong> when you submit the contact form or book a
+              call, your submission is sent through our email provider over SMTP so we can receive a
+              notification and send you a confirmation.
             </li>
             <li>
               <strong>Hosting provider:</strong> the site is served from a global CDN/edge network.

@@ -396,12 +396,11 @@ export const siteConfig: SiteConfig = {
     ],
   },
 
-  resend: {
-    // TODO: once the ladigital.ca domain is verified in Resend, switch
-    // fromEmail back to "LA Digital <info@ladigital.ca>".
-    fromEmail: "LA Digital <onboarding@resend.dev>",
-    // TODO: switch toEmail back to "info@ladigital.ca" once that inbox exists.
-    // Until then route all inquiries to the founder's personal inbox.
+  mail: {
+    // From/owner addresses for transactional email (sent via Nodemailer/SMTP).
+    // These are sensible defaults; the actual From can be overridden per-send
+    // and the SMTP transport is configured via SMTP_* env vars (see lib/mailer.ts).
+    fromEmail: "LA Digital <info@ladigital.ca>",
     toEmail: "laithalwani@gmail.com",
   },
 };

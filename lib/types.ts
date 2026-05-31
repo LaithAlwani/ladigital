@@ -129,7 +129,7 @@ export type SiteConfig = {
     siteUrl: string;
     keywords: string[];
   };
-  resend: {
+  mail: {
     fromEmail: string;
     toEmail: string;
     replyTo?: string;

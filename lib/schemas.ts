@@ -67,3 +67,43 @@ export type ContactActionState =
   | { status: "error"; message: string; fieldErrors?: ContactFieldErrors };
 
 export const INITIAL_CONTACT_STATE: ContactActionState = { status: "idle" };
+
+// ----------------------------------------------------------------------------
+// Booking — discovery-call scheduling.
+// ----------------------------------------------------------------------------
+
+export const bookingSchema = z.object({
+  name: z.string().min(2, "Please enter your name").max(80),
+  email: z.string().email("Enter a valid email"),
+  phone: z.string().max(40).optional().or(z.literal("")),
+  company: z.string().max(120).optional().or(z.literal("")),
+  notes: z.string().max(1000).optional().or(z.literal("")),
+  // Chosen slot start, epoch ms. Coerced because it arrives as a hidden field.
+  startUtc: z.coerce.number().int().positive("Please pick a time"),
+  // honeypot
+  website: z.string().max(0).optional().or(z.literal("")),
+  consent: z
+    .boolean()
+    .refine((v) => v === true, { message: "Please agree to be contacted" }),
+});
+
+export type BookingInput = z.infer<typeof bookingSchema>;
+
+export type BookingFieldErrors = Partial<Record<keyof BookingInput, string[]>>;
+
+/** Details surfaced on the confirmation step. */
+export type BookingConfirmation = {
+  startUtc: number;
+  endUtc: number;
+  timezone: string;
+  manageToken: string;
+  meetLink?: string;
+  calendarConnected: boolean;
+};
+
+export type BookingActionState =
+  | { status: "idle" }
+  | { status: "success"; message: string; booking: BookingConfirmation }
+  | { status: "error"; message: string; fieldErrors?: BookingFieldErrors };
+
+export const INITIAL_BOOKING_STATE: BookingActionState = { status: "idle" };

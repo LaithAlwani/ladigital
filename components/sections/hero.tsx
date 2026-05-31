@@ -72,7 +72,7 @@ export function Hero() {
               See plans
               <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button href="/#contact" variant="outline" size="lg">
+            <Button href="/book" variant="outline" size="lg">
               <Play className="h-4 w-4" />
               Book a discovery call
             </Button>

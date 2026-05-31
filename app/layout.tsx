@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { LeoWidget } from "@/components/leo/leo-widget";
 import { JsonLd } from "@/components/seo/json-ld";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { organizationLd, localBusinessLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -81,12 +82,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-ink text-foreground">
-        <JsonLd data={[organizationLd(), localBusinessLd()]} />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-        <LeoWidget />
-        <GoogleAnalytics />
+        <ConvexClientProvider>
+          <JsonLd data={[organizationLd(), localBusinessLd()]} />
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+          <LeoWidget />
+          <GoogleAnalytics />
+        </ConvexClientProvider>
       </body>
     </html>
   );
