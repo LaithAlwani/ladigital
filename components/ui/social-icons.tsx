@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { Social } from "@/lib/types";
+import { Globe } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 type IconProps = { className?: string };
@@ -41,22 +41,44 @@ function TikTokIcon({ className }: IconProps) {
   );
 }
 
-const ICON_MAP = {
+function LinkedInIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
+    </svg>
+  );
+}
+
+function XIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+const ICON_MAP: Record<string, (p: IconProps) => React.JSX.Element> = {
   instagram: InstagramIcon,
   youtube: YouTubeIcon,
   facebook: FacebookIcon,
   tiktok: TikTokIcon,
-} as const;
+  linkedin: LinkedInIcon,
+  x: XIcon,
+};
 
-const LABEL_MAP = {
+const LABEL_MAP: Record<string, string> = {
   instagram: "Instagram",
   youtube: "YouTube",
   facebook: "Facebook",
   tiktok: "TikTok",
-} as const;
+  linkedin: "LinkedIn",
+  x: "X",
+};
+
+type SocialItem = { platform: string; url: string; handle?: string };
 
 type Props = {
-  socials: Social[];
+  socials: SocialItem[];
   size?: "sm" | "md";
   className?: string;
 };
@@ -67,15 +89,16 @@ export function SocialIcons({ socials, size = "sm", className }: Props) {
 
   return (
     <ul className={cn("flex items-center gap-1.5", className)}>
-      {socials.map((s) => {
-        const Icon = ICON_MAP[s.platform];
+      {socials.map((s, i) => {
+        const Icon = ICON_MAP[s.platform] ?? Globe;
+        const label = LABEL_MAP[s.platform] ?? s.platform;
         return (
-          <li key={s.platform}>
+          <li key={`${s.platform}-${i}`}>
             <Link
               href={s.url}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`LA Digital on ${LABEL_MAP[s.platform]}`}
+              aria-label={`LA Digital on ${label}`}
               className={cn(
                 "grid place-items-center rounded-full border border-border bg-surface/40 text-muted transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-orange/50 hover:text-brand-orange hover:shadow-glow-soft",
                 btnClass,

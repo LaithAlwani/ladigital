@@ -7,6 +7,7 @@ import { LeoWidget } from "@/components/leo/leo-widget";
 import { JsonLd } from "@/components/seo/json-ld";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
+import { PublicChrome } from "@/components/layout/public-chrome";
 import { organizationLd, localBusinessLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 
@@ -84,10 +85,14 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-ink text-foreground">
         <ConvexClientProvider>
           <JsonLd data={[organizationLd(), localBusinessLd()]} />
-          <SiteHeader />
+          <PublicChrome>
+            <SiteHeader />
+          </PublicChrome>
           <main className="flex-1">{children}</main>
-          <SiteFooter />
-          <LeoWidget />
+          <PublicChrome>
+            <SiteFooter />
+            <LeoWidget />
+          </PublicChrome>
           <GoogleAnalytics />
         </ConvexClientProvider>
       </body>

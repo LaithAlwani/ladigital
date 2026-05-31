@@ -10,14 +10,22 @@ import { PackageCard } from "@/components/ui/package-card";
 import { formatCAD } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { stagger } from "@/lib/motion";
+import { usePlans, effectivePackages } from "@/lib/use-plans";
+import type { ServicePackage } from "@/lib/types";
 
 export function ServicesFull() {
+  const plans = usePlans();
   return (
     <>
       <CategoryNav />
       <div className="flex flex-col gap-24 md:gap-32">
         {siteConfig.services.map((service, idx) => (
-          <CategoryBlock key={service.id} service={service} reverse={idx % 2 === 1} />
+          <CategoryBlock
+            key={service.id}
+            service={service}
+            packages={effectivePackages(service, plans)}
+            reverse={idx % 2 === 1}
+          />
         ))}
       </div>
     </>
@@ -49,16 +57,24 @@ function CategoryNav() {
   );
 }
 
-function CategoryBlock({ service, reverse }: { service: (typeof siteConfig.services)[number]; reverse: boolean }) {
+function CategoryBlock({
+  service,
+  packages,
+  reverse,
+}: {
+  service: (typeof siteConfig.services)[number];
+  packages: ServicePackage[];
+  reverse: boolean;
+}) {
   const reduced = useReducedMotion();
   const hasImage = Boolean(service.image);
-  const hasOptionsCard = service.packages.some((p) => p.options && p.options.length > 0);
+  const hasOptionsCard = packages.some((p) => p.options && p.options.length > 0);
   const cols =
-    service.packages.length === 1
+    packages.length === 1
       ? hasOptionsCard
         ? "md:grid-cols-1 md:max-w-3xl mx-auto"
         : "md:grid-cols-1 md:max-w-md"
-      : service.packages.length === 2
+      : packages.length === 2
         ? "md:grid-cols-2"
         : "md:grid-cols-3";
 
@@ -139,7 +155,7 @@ function CategoryBlock({ service, reverse }: { service: (typeof siteConfig.servi
         variants={reduced ? undefined : stagger(0.05, 0.08)}
         className={cn("mt-10 grid grid-cols-1 gap-5", cols)}
       >
-        {service.packages.map((pkg) => (
+        {packages.map((pkg) => (
           <PackageCard key={pkg.id} service={service} pkg={pkg} />
         ))}
       </motion.div>

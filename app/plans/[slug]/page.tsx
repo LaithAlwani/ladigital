@@ -9,9 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { PriceDisplay } from "@/components/ui/price-display";
 import { CtaBanner } from "@/components/sections/cta-banner";
 import { JsonLd } from "@/components/seo/json-ld";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
 import { breadcrumbLd, serviceLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
 import type { ServicePackage } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 // Per-plan SEO copy. Keep titles ≤ 60 chars, descriptions 150–160 chars.
 type PlanSeo = {
@@ -52,18 +56,32 @@ const PLAN_SEO: Record<string, PlanSeo> = {
   },
 };
 
-function findPlan(slug: string): ServicePackage | undefined {
+function findStaticPlan(slug: string): ServicePackage | undefined {
   return siteConfig.services
     .find((s) => s.id === "plans")
     ?.packages.find((p) => p.id === slug);
 }
 
-export function generateStaticParams() {
-  return (
-    siteConfig.services
-      .find((s) => s.id === "plans")
-      ?.packages.map((p) => ({ slug: p.id })) ?? []
-  );
+/** Effective plan: admin-edited (Convex) if present, else the static package. */
+async function findPlan(slug: string): Promise<ServicePackage | undefined> {
+  const rows = await fetchQuery(api.plans.getPublic, {}).catch(() => []);
+  const row = rows.find((r) => r.categoryId === "plans" && r.slug === slug);
+  if (row) {
+    return {
+      id: row.slug,
+      name: row.name,
+      tagline: row.tagline,
+      price: row.price,
+      currency: "CAD",
+      unit: row.unit,
+      setupFee: row.setupFee,
+      setupWaivedAnnual: row.setupWaivedAnnual,
+      features: row.features,
+      notes: row.notes,
+      highlight: row.highlight,
+    };
+  }
+  return findStaticPlan(slug);
 }
 
 export async function generateMetadata({
@@ -107,7 +125,7 @@ export default async function PlanPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const pkg = findPlan(slug);
+  const pkg = await findPlan(slug);
   const seo = PLAN_SEO[slug];
   if (!pkg || !seo) notFound();
 

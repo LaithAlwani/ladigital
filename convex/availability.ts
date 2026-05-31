@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query, internalMutation, type QueryCtx } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
+import { assertAdmin } from "./lib/requireAdmin";
 
 // ----------------------------------------------------------------------------
 // Availability rules — the owner's bookable-hours configuration (a singleton).
@@ -92,4 +93,45 @@ export const listBlackouts = query({
 export const addBlackout = internalMutation({
   args: { startDate: v.string(), endDate: v.string(), reason: v.optional(v.string()) },
   handler: async (ctx, args) => ctx.db.insert("blackoutDates", args),
+});
+
+// ---- Admin (key-guarded) -----------------------------------------------
+
+export const setRulesAdmin = mutation({
+  args: { adminKey: v.string(), ...rulesArgs },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    const { adminKey: _k, ...rules } = args;
+    const existing = await ctx.db.query("availabilityRules").first();
+    if (existing) {
+      await ctx.db.replace(existing._id, rules);
+      return existing._id;
+    }
+    return ctx.db.insert("availabilityRules", rules);
+  },
+});
+
+export const addBlackoutAdmin = mutation({
+  args: {
+    adminKey: v.string(),
+    startDate: v.string(),
+    endDate: v.string(),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    return ctx.db.insert("blackoutDates", {
+      startDate: args.startDate,
+      endDate: args.endDate,
+      reason: args.reason,
+    });
+  },
+});
+
+export const removeBlackout = mutation({
+  args: { adminKey: v.string(), id: v.id("blackoutDates") },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    await ctx.db.delete(args.id);
+  },
 });

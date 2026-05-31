@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Hero } from "@/components/sections/hero";
 import { ServicesTeaser } from "@/components/sections/services-teaser";
 import { WhyChooseUs } from "@/components/sections/why-choose-us";
+import { SelectedWork } from "@/components/sections/selected-work";
 import { Process } from "@/components/sections/process";
 import { ContactSection } from "@/components/sections/contact-section";
 import { Faq } from "@/components/sections/faq";
@@ -40,6 +41,7 @@ export default async function HomePage({ searchParams }: Props) {
       <Hero />
       <ServicesTeaser />
       <WhyChooseUs />
+      <SelectedWork />
       <Process />
       <Faq />
       <ContactSection defaultService={serviceMatch?.id} defaultPackage={pkgMatch?.name} />

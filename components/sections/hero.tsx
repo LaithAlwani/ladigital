@@ -6,12 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { siteConfig } from "@/lib/site-config";
+import { useSettings } from "@/lib/use-settings";
 import { fadeUp, stagger } from "@/lib/motion";
 
 export function Hero() {
   const reduced = useReducedMotion();
+  const settings = useSettings();
   const containerVariants = reduced ? undefined : stagger(0.1, 0.12);
   const itemVariants = reduced ? { hidden: { opacity: 0 }, show: { opacity: 1 } } : fadeUp;
+
+  const headline = settings?.company?.heroHeadline ?? siteConfig.company.heroHeadline;
+  const subheadline = settings?.company?.heroSubheadline ?? siteConfig.company.heroSubheadline;
+  const offerActive = settings?.offer?.enabled && settings.offer.text;
+  const promoText = offerActive
+    ? settings!.offer!.text!
+    : settings?.pricing?.annualPromoLine ?? siteConfig.pricing.annualPromoLine;
 
   return (
     <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden pt-16">
@@ -53,17 +62,18 @@ export function Hero() {
             variants={itemVariants}
             className="font-display text-4xl font-semibold leading-[1.04] tracking-tight text-foreground text-balance sm:text-6xl md:text-7xl"
           >
-            {siteConfig.company.heroHeadline}
+            {headline}
           </motion.h1>
 
           <motion.p variants={itemVariants} className="max-w-2xl text-base text-muted sm:text-lg">
-            {siteConfig.company.heroSubheadline}
+            {subheadline}
           </motion.p>
 
           <motion.div variants={itemVariants} className="mt-2">
             <span className="inline-flex items-center gap-2 rounded-pill border border-brand-orange/40 bg-brand-orange/12 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-orange">
               <Sparkles className="h-3.5 w-3.5" />
-              {siteConfig.pricing.annualPromoLine}
+              {offerActive && settings?.offer?.label ? `${settings.offer.label}: ` : ""}
+              {promoText}
             </span>
           </motion.div>
 

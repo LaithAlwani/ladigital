@@ -7,12 +7,14 @@ import type { ServiceCategory } from "@/lib/types";
 import { Icon } from "./icon";
 import { StartingAt } from "./price-display";
 import { fadeUp, fadeInstant } from "@/lib/motion";
+import { usePlans, effectivePackages, cheapestPackage } from "@/lib/use-plans";
 
 type Props = { service: ServiceCategory };
 
 export function ServiceCard({ service }: Props) {
   const reduced = useReducedMotion();
-  const cheapest = [...service.packages].sort((a, b) => a.price - b.price)[0];
+  const plans = usePlans();
+  const cheapest = cheapestPackage(effectivePackages(service, plans));
 
   return (
     <motion.div

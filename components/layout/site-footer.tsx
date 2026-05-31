@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Logo } from "@/components/ui/logo";
-import { SocialIcons } from "@/components/ui/social-icons";
+import { FooterSocials } from "@/components/layout/footer-socials";
 import { siteConfig } from "@/lib/site-config";
 
 const SITEMAP = [
@@ -25,7 +25,7 @@ export function SiteFooter() {
             <p className="max-w-sm text-sm text-muted">
               {siteConfig.company.description} Built and supported from {siteConfig.contact.city}.
             </p>
-            <SocialIcons socials={siteConfig.socials} size="md" />
+            <FooterSocials size="md" />
           </div>
 
           <div>
