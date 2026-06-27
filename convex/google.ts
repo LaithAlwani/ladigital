@@ -45,15 +45,24 @@ async function authedCalendar(ctx: ActionCtx) {
   });
 
   if (Date.now() > tokens.expiryDate - 60_000) {
-    const res = await oauth.getAccessToken(); // auto-refreshes using refresh_token
-    const creds = oauth.credentials;
-    if (creds.access_token && creds.expiry_date) {
-      await ctx.runMutation(internal.googleTokens.updateAccess, {
-        accessToken: creds.access_token,
-        expiryDate: creds.expiry_date,
-      });
+    try {
+      await oauth.getAccessToken(); // auto-refreshes using refresh_token
+      const creds = oauth.credentials;
+      if (creds.access_token && creds.expiry_date) {
+        await ctx.runMutation(internal.googleTokens.updateAccess, {
+          accessToken: creds.access_token,
+          expiryDate: creds.expiry_date,
+        });
+      }
+    } catch (err) {
+      // invalid_grant etc. — the refresh token is dead (revoked, or expired
+      // because the OAuth app is still in "Testing" mode). Disconnect so the
+      // admin is prompted to reconnect, and degrade gracefully: callers treat
+      // null as "not connected" and the booking still saves + emails.
+      console.error("[google] token refresh failed — disconnecting.", err);
+      await ctx.runMutation(internal.googleTokens.disconnect, {});
+      return null;
     }
-    void res;
   }
 
   const calendar = google.calendar({ version: "v3", auth: oauth });

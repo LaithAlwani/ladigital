@@ -196,9 +196,18 @@ export const book = action({
     const created: CreateResult = await ctx.runMutation(internal.bookings.create, args);
     if (!created.ok) return { ok: false, reason: created.reason };
 
-    const ev = await ctx.runAction(internal.google.insertEvent, {
-      bookingId: created.bookingId as Id<"bookings">,
-    });
+    // The booking is already saved. A calendar failure (disconnected, expired
+    // token, API hiccup) must NEVER fail the booking — we still return ok so
+    // the visitor sees success and both confirmation emails are sent. The
+    // event just won't have a Meet link until the calendar is reconnected.
+    let ev: { connected: boolean; meetLink?: string } = { connected: false };
+    try {
+      ev = await ctx.runAction(internal.google.insertEvent, {
+        bookingId: created.bookingId as Id<"bookings">,
+      });
+    } catch (err) {
+      console.error("[bookings.book] calendar insert failed (non-fatal)", err);
+    }
     return {
       ok: true,
       manageToken: created.manageToken,
@@ -219,9 +228,13 @@ export const rebook = action({
   handler: async (ctx, args): Promise<RebookResult> => {
     const res: RescheduleResult = await ctx.runMutation(internal.bookings.reschedule, args);
     if (!res.ok) return { ok: false, reason: res.reason };
-    await ctx.runAction(internal.google.patchEvent, {
-      bookingId: res.bookingId as Id<"bookings">,
-    });
+    try {
+      await ctx.runAction(internal.google.patchEvent, {
+        bookingId: res.bookingId as Id<"bookings">,
+      });
+    } catch (err) {
+      console.error("[bookings.rebook] calendar patch failed (non-fatal)", err);
+    }
     return {
       ok: true,
       startUtc: res.startUtc,
@@ -239,7 +252,11 @@ export const unbook = action({
     const res: CancelResult = await ctx.runMutation(internal.bookings.cancel, args);
     if (!res.ok) return { ok: false, reason: res.reason };
     if (res.googleEventId) {
-      await ctx.runAction(internal.google.deleteEvent, { googleEventId: res.googleEventId });
+      try {
+        await ctx.runAction(internal.google.deleteEvent, { googleEventId: res.googleEventId });
+      } catch (err) {
+        console.error("[bookings.unbook] calendar delete failed (non-fatal)", err);
+      }
     }
     return { ok: true };
   },
