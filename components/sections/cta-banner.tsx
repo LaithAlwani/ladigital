@@ -14,7 +14,7 @@ export function CtaBanner({
   title = "Not sure which plan fits? Let's talk.",
   description = "Book a quick discovery call and we'll recommend the right plan, add-ons, and growth services for your business.",
   ctaLabel = "Book a discovery call",
-  ctaHref = "/#contact",
+  ctaHref = "/book",
 }: Props) {
   return (
     <Section padding="sm" withContainer={false}>

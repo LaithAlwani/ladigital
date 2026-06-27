@@ -15,9 +15,9 @@ type Props = {
   pkg: ServicePackage;
 };
 
-export function PackageCard({ service, pkg }: Props) {
+export function PackageCard({ pkg }: Props) {
   const reduced = useReducedMotion();
-  const href = `/#contact?service=${encodeURIComponent(service.id)}&package=${encodeURIComponent(pkg.id)}`;
+  const href = "/book";
   const isOptionMenu = Boolean(pkg.options && pkg.options.length > 0);
 
   return (

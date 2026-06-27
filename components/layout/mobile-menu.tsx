@@ -100,7 +100,7 @@ export function MobileMenu({ open, onClose, nav, activeSection }: Props) {
                 <span className="text-xs text-muted-2">{siteConfig.contact.city}, {siteConfig.contact.region}</span>
               </div>
               <SocialLinks size="md" />
-              <Button href="/#contact" variant="primary" fullWidth onClick={onClose}>
+              <Button href="/book" variant="primary" fullWidth onClick={onClose}>
                 Start a project
               </Button>
             </div>

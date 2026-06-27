@@ -80,7 +80,7 @@ export function SiteHeader() {
 
             <div className="hidden items-center gap-3 md:flex">
               <SocialLinks size="sm" />
-              <Button href="/#contact" variant="primary" size="sm">
+              <Button href="/book" variant="primary" size="sm">
                 Start a project
               </Button>
             </div>

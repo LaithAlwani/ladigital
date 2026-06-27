@@ -135,7 +135,7 @@ export default async function PlanPage({
     { name: pkg.name, path: `/plans/${slug}` },
   ]);
 
-  const planHref = `/#contact?service=plans&package=${encodeURIComponent(slug)}`;
+  const planHref = "/book";
 
   return (
     <>
