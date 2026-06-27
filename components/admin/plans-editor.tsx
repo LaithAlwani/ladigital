@@ -262,11 +262,16 @@ export function PlansEditor({ plans }: { plans: PlanRow[] }) {
                       min={0}
                       suffix="CAD"
                     />
-                    <div className="flex items-end gap-4">
+                    <div className="flex flex-wrap items-end gap-x-6 gap-y-3 pb-1">
                       <Toggle
                         label="Most popular"
                         checked={f.highlight}
                         onChange={(v) => update(cat.id, i, { highlight: v })}
+                      />
+                      <Toggle
+                        label="Setup waived with annual"
+                        checked={f.setupWaivedAnnual}
+                        onChange={(v) => update(cat.id, i, { setupWaivedAnnual: v })}
                       />
                     </div>
                   </div>

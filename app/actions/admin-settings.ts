@@ -32,7 +32,7 @@ export type SettingsPayload = {
   };
   pricing?: { setupFee?: number; annualPromoLine?: string; setupWaivedAnnual?: boolean };
   offer?: { enabled: boolean; label?: string; text?: string };
-  socials?: { platform: string; url: string; handle?: string }[];
+  socials?: { platform: string; url: string; handle?: string; enabled?: boolean }[];
   packagePrices?: { id: string; price: number }[];
 };
 

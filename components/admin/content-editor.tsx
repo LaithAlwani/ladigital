@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import {
   TextField,
   TextArea,
+  Toggle,
   Card,
   AdminPageHeader,
   SaveButton,
@@ -69,7 +70,7 @@ export function ContentEditor({ settings }: { settings: Settings }) {
     setSocials((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   }
   function addSocial() {
-    setSocials((prev) => [...prev, { platform: "instagram", url: "", handle: "" }]);
+    setSocials((prev) => [...prev, { platform: "instagram", url: "", handle: "", enabled: true }]);
   }
   function removeSocial(i: number) {
     setSocials((prev) => prev.filter((_, idx) => idx !== i));
@@ -84,7 +85,12 @@ export function ContentEditor({ settings }: { settings: Settings }) {
         contact: { email, phone, city, region, businessHours },
         socials: socials
           .filter((s) => s.url.trim())
-          .map((s) => ({ platform: s.platform, url: s.url.trim(), handle: s.handle?.trim() || undefined })),
+          .map((s) => ({
+            platform: s.platform,
+            url: s.url.trim(),
+            handle: s.handle?.trim() || undefined,
+            enabled: s.enabled !== false,
+          })),
       });
       setSaved(true);
       router.refresh();
@@ -133,7 +139,23 @@ export function ContentEditor({ settings }: { settings: Settings }) {
             <p className="text-sm text-muted-2">No social links yet.</p>
           ) : (
             socials.map((s, i) => (
-              <div key={i} className="flex flex-wrap items-end gap-2">
+              <div
+                key={i}
+                className={cn(
+                  "flex flex-wrap items-end gap-2 transition-opacity",
+                  s.enabled === false && "opacity-50",
+                )}
+              >
+                <div className="flex flex-col items-center gap-1.5">
+                  <label className={labelBase}>Show</label>
+                  <div className="flex h-11 items-center">
+                    <Toggle
+                      label=""
+                      checked={s.enabled !== false}
+                      onChange={(v) => updateSocial(i, { enabled: v })}
+                    />
+                  </div>
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <label className={labelBase}>Platform</label>
                   <select

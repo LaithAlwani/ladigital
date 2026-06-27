@@ -1,5 +1,13 @@
 import { v, ConvexError } from "convex/values";
-import { mutation, query, type QueryCtx } from "./_generated/server";
+import {
+  mutation,
+  query,
+  action,
+  internalMutation,
+  type QueryCtx,
+  type MutationCtx,
+} from "./_generated/server";
+import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { projectStatus } from "./schema";
 import { assertAdmin } from "./lib/requireAdmin";
@@ -227,5 +235,163 @@ export const remove = mutation({
     if (!doc) return;
     for (const img of doc.images) await ctx.storage.delete(img.storageId);
     await ctx.db.delete(args.id);
+  },
+});
+
+// ---- Create with full data (used by URL import + the screenshot script) ----
+
+type NewProject = {
+  title: string;
+  subtitle?: string;
+  description: string;
+  url?: string;
+  status: Doc<"projects">["status"];
+  images: { storageId: Id<"_storage">; alt?: string }[];
+  published?: boolean;
+};
+
+async function insertProjectDoc(ctx: MutationCtx, data: NewProject): Promise<Id<"projects">> {
+  const all = await ctx.db.query("projects").withIndex("by_order").collect();
+  const maxOrder = all.reduce((m, p) => Math.max(m, p.order), -1);
+  const slug = await uniqueSlug(ctx, slugify(data.title || "project"));
+  return ctx.db.insert("projects", {
+    title: data.title || "Untitled project",
+    subtitle: data.subtitle,
+    description: data.description,
+    images: data.images,
+    coverIndex: 0,
+    slug,
+    url: data.url,
+    status: data.status,
+    order: maxOrder + 1,
+    published: data.published ?? false,
+    createdAt: Date.now(),
+  });
+}
+
+const fullArgs = {
+  title: v.string(),
+  subtitle: v.optional(v.string()),
+  description: v.string(),
+  url: v.optional(v.string()),
+  status: projectStatus,
+  images: v.array(v.object({ storageId: v.id("_storage"), alt: v.optional(v.string()) })),
+  published: v.optional(v.boolean()),
+};
+
+/** Public — create a fully-specified project (used by the screenshot import script). */
+export const createFull = mutation({
+  args: { adminKey: v.string(), ...fullArgs },
+  handler: async (ctx, args): Promise<Id<"projects">> => {
+    assertAdmin(args.adminKey);
+    const { adminKey: _k, ...data } = args;
+    return insertProjectDoc(ctx, data);
+  },
+});
+
+/** Internal — insert used by the importFromUrl action (already admin-checked). */
+export const insertProject = internalMutation({
+  args: fullArgs,
+  handler: async (ctx, args): Promise<Id<"projects">> => insertProjectDoc(ctx, args),
+});
+
+// ---- Import a project from a public URL (og:image + metadata) ----------
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&#x27;/gi, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function attr(tag: string, name: string): string | null {
+  const dq = tag.match(new RegExp(`${name}\\s*=\\s*"([^"]*)"`, "i"));
+  if (dq) return dq[1];
+  const sq = tag.match(new RegExp(`${name}\\s*=\\s*'([^']*)'`, "i"));
+  return sq ? sq[1] : null;
+}
+
+function parseMeta(html: string): { title: string | null; description: string; image: string | null } {
+  const metas = html.match(/<meta\b[^>]*>/gi) ?? [];
+  let image: string | null = null;
+  let ogTitle: string | null = null;
+  let ogDesc: string | null = null;
+  let metaDesc: string | null = null;
+  for (const tag of metas) {
+    const key = (attr(tag, "property") ?? attr(tag, "name") ?? "").toLowerCase();
+    const content = attr(tag, "content");
+    if (!content) continue;
+    if ((key === "og:image" || key === "og:image:url") && !image) image = content;
+    else if (key === "twitter:image" && !image) image = content;
+    else if (key === "og:title" && !ogTitle) ogTitle = content;
+    else if (key === "og:description" && !ogDesc) ogDesc = content;
+    else if (key === "description" && !metaDesc) metaDesc = content;
+  }
+  const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const title = ogTitle ?? (titleTag ? titleTag[1].trim() : null);
+  return {
+    title: title ? decodeEntities(title).slice(0, 80) : null,
+    description: decodeEntities(ogDesc ?? metaDesc ?? ""),
+    image: image ?? null,
+  };
+}
+
+export const importFromUrl = action({
+  args: { adminKey: v.string(), url: v.string() },
+  handler: async (ctx, args): Promise<{ id?: Id<"projects">; error?: string }> => {
+    assertAdmin(args.adminKey);
+
+    let pageUrl = args.url.trim();
+    if (!/^https?:\/\//i.test(pageUrl)) pageUrl = `https://${pageUrl}`;
+    try {
+      // eslint-disable-next-line no-new
+      new URL(pageUrl);
+    } catch {
+      return { error: "That doesn't look like a valid URL." };
+    }
+
+    let html: string;
+    try {
+      const res = await fetch(pageUrl, {
+        headers: { "user-agent": "Mozilla/5.0 (compatible; LADigitalBot/1.0)" },
+        redirect: "follow",
+      });
+      if (!res.ok) return { error: `The site responded with ${res.status}.` };
+      html = await res.text();
+    } catch {
+      return { error: "Couldn't reach that URL." };
+    }
+
+    const meta = parseMeta(html);
+
+    const images: { storageId: Id<"_storage">; alt?: string }[] = [];
+    if (meta.image) {
+      try {
+        const imgUrl = new URL(meta.image, pageUrl).toString();
+        const imgRes = await fetch(imgUrl);
+        const type = imgRes.headers.get("content-type") ?? "";
+        if (imgRes.ok && type.startsWith("image/")) {
+          const blob = await imgRes.blob();
+          const storageId = await ctx.storage.store(blob);
+          images.push({ storageId, alt: meta.title ?? "" });
+        }
+      } catch {
+        // Non-fatal — create the project without an image; owner can upload one.
+      }
+    }
+
+    const host = new URL(pageUrl).hostname.replace(/^www\./, "");
+    const id: Id<"projects"> = await ctx.runMutation(internal.projects.insertProject, {
+      title: meta.title || host,
+      description: meta.description,
+      url: pageUrl,
+      status: "live",
+      images,
+      published: false,
+    });
+    return { id };
   },
 });

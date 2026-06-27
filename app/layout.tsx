@@ -7,9 +7,12 @@ import { LeoWidget } from "@/components/leo/leo-widget";
 import { JsonLd } from "@/components/seo/json-ld";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
+import { SocialsProvider } from "@/components/providers/socials-provider";
 import { PublicChrome } from "@/components/layout/public-chrome";
 import { organizationLd, localBusinessLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";
+import { getSettings } from "@/lib/get-settings";
+import { resolveSocials } from "@/lib/socials";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -70,11 +73,14 @@ export const metadata: Metadata = {
   // verification: { google: "...", other: { "msvalidate.01": "..." } },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSettings();
+  const socials = resolveSocials(settings?.socials, siteConfig.socials);
+
   return (
     <html
       lang="en"
@@ -84,16 +90,18 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-ink text-foreground">
         <ConvexClientProvider>
-          <JsonLd data={[organizationLd(), localBusinessLd()]} />
-          <PublicChrome>
-            <SiteHeader />
-          </PublicChrome>
-          <main className="flex-1">{children}</main>
-          <PublicChrome>
-            <SiteFooter />
-            <LeoWidget />
-          </PublicChrome>
-          <GoogleAnalytics />
+          <SocialsProvider value={socials}>
+            <JsonLd data={[organizationLd(), localBusinessLd()]} />
+            <PublicChrome>
+              <SiteHeader />
+            </PublicChrome>
+            <main className="flex-1">{children}</main>
+            <PublicChrome>
+              <SiteFooter />
+              <LeoWidget />
+            </PublicChrome>
+            <GoogleAnalytics />
+          </SocialsProvider>
         </ConvexClientProvider>
       </body>
     </html>

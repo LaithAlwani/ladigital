@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { fetchMutation } from "convex/nextjs";
+import { fetchMutation, fetchAction } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { isAdmin, adminWriteKey } from "@/lib/admin-session";
@@ -32,6 +32,23 @@ export async function createProject(): Promise<string> {
   await ensureAdmin();
   const id = await fetchMutation(api.projects.create, { adminKey: adminWriteKey() });
   return id;
+}
+
+export async function importProjectFromUrl(
+  url: string,
+): Promise<{ id?: string; error?: string }> {
+  await ensureAdmin();
+  try {
+    const res = await fetchAction(api.projects.importFromUrl, {
+      adminKey: adminWriteKey(),
+      url,
+    });
+    if (res.id) bustPublic();
+    return { id: res.id, error: res.error };
+  } catch (err) {
+    console.error("[admin] importFromUrl failed:", err);
+    return { error: "Import failed. Please try again." };
+  }
 }
 
 export async function updateProject(input: {

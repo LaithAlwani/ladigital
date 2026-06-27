@@ -7,8 +7,7 @@ import { Menu } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { SocialIcons } from "@/components/ui/social-icons";
-import { siteConfig } from "@/lib/site-config";
+import { SocialLinks } from "@/components/layout/social-links";
 import { useActiveSection } from "@/lib/use-active-section";
 import { NavLink } from "./nav-link";
 import { MobileMenu } from "./mobile-menu";
@@ -80,7 +79,7 @@ export function SiteHeader() {
             </nav>
 
             <div className="hidden items-center gap-3 md:flex">
-              <SocialIcons socials={siteConfig.socials} size="sm" />
+              <SocialLinks size="sm" />
               <Button href="/#contact" variant="primary" size="sm">
                 Start a project
               </Button>

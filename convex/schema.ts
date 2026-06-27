@@ -72,6 +72,7 @@ export default defineSchema({
           platform: v.string(),
           url: v.string(),
           handle: v.optional(v.string()),
+          enabled: v.optional(v.boolean()),
         }),
       ),
     ),

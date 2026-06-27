@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SocialIcons } from "@/components/ui/social-icons";
+import { SocialLinks } from "@/components/layout/social-links";
 import { siteConfig } from "@/lib/site-config";
 import { NavLink } from "./nav-link";
 import { resolveActive, type NavItem } from "./site-header";
@@ -99,7 +99,7 @@ export function MobileMenu({ open, onClose, nav, activeSection }: Props) {
                 ) : null}
                 <span className="text-xs text-muted-2">{siteConfig.contact.city}, {siteConfig.contact.region}</span>
               </div>
-              <SocialIcons socials={siteConfig.socials} size="md" />
+              <SocialLinks size="md" />
               <Button href="/#contact" variant="primary" fullWidth onClick={onClose}>
                 Start a project
               </Button>

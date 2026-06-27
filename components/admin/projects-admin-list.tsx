@@ -13,11 +13,13 @@ import {
   ArrowDown,
   Loader2,
   ImageOff,
+  Link2,
 } from "lucide-react";
 import type { ResolvedProject } from "@/convex/projects";
 import { STATUS_MAP } from "@/lib/project-status";
 import {
   createProject,
+  importProjectFromUrl,
   removeProject,
   reorderProjects,
   setProjectPublished,
@@ -29,6 +31,10 @@ export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
   const [items, setItems] = React.useState(initial);
   const [pending, startTransition] = React.useTransition();
   const [busyId, setBusyId] = React.useState<string | null>(null);
+  const [showImport, setShowImport] = React.useState(false);
+  const [importUrl, setImportUrl] = React.useState("");
+  const [importing, setImporting] = React.useState(false);
+  const [importError, setImportError] = React.useState<string | null>(null);
 
   React.useEffect(() => setItems(initial), [initial]);
 
@@ -36,6 +42,22 @@ export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
     startTransition(async () => {
       const id = await createProject();
       router.push(`/admin/projects/${id}`);
+    });
+  }
+
+  function runImport() {
+    const url = importUrl.trim();
+    if (!url || importing) return;
+    setImporting(true);
+    setImportError(null);
+    startTransition(async () => {
+      const res = await importProjectFromUrl(url);
+      setImporting(false);
+      if (res.id) {
+        router.push(`/admin/projects/${res.id}`);
+      } else {
+        setImportError(res.error ?? "Import failed.");
+      }
     });
   }
 
@@ -77,16 +99,60 @@ export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
           <h1 className="font-display text-3xl font-semibold text-foreground">Projects</h1>
           <p className="mt-1 text-sm text-muted">Showcase the work you've done.</p>
         </div>
-        <button
-          type="button"
-          onClick={newProject}
-          disabled={pending}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60"
-        >
-          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          New project
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setShowImport((v) => !v);
+              setImportError(null);
+            }}
+            className="inline-flex h-11 items-center gap-2 rounded-lg border border-border-strong px-4 text-sm font-medium text-foreground transition-colors hover:border-brand-orange hover:text-brand-orange"
+          >
+            <Link2 className="h-4 w-4" />
+            Import from URL
+          </button>
+          <button
+            type="button"
+            onClick={newProject}
+            disabled={pending}
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60"
+          >
+            {pending && !importing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+            New project
+          </button>
+        </div>
       </div>
+
+      {showImport ? (
+        <div className="flex flex-col gap-2 rounded-card border border-border bg-surface/40 p-4">
+          <p className="text-xs text-muted">
+            Paste a site URL — we'll create a draft using its preview image, title, and description.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              value={importUrl}
+              onChange={(e) => setImportUrl(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && runImport()}
+              placeholder="https://example.com"
+              className="h-11 min-w-60 flex-1 rounded-lg border border-border bg-ink/40 px-3.5 text-sm text-foreground placeholder:text-muted-2 focus:border-brand-orange focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={runImport}
+              disabled={!importUrl.trim() || importing}
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60"
+            >
+              {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+              Import
+            </button>
+          </div>
+          {importError ? <p className="text-xs text-danger">{importError}</p> : null}
+        </div>
+      ) : null}
 
       {items.length === 0 ? (
         <div className="rounded-card border border-dashed border-border bg-surface/30 p-10 text-center text-sm text-muted">

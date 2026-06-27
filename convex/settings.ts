@@ -40,7 +40,14 @@ const offerV = v.optional(
 );
 const packagePricesV = v.optional(v.array(v.object({ id: v.string(), price: v.number() })));
 const socialsV = v.optional(
-  v.array(v.object({ platform: v.string(), url: v.string(), handle: v.optional(v.string()) })),
+  v.array(
+    v.object({
+      platform: v.string(),
+      url: v.string(),
+      handle: v.optional(v.string()),
+      enabled: v.optional(v.boolean()),
+    }),
+  ),
 );
 
 export const getPublic = query({
