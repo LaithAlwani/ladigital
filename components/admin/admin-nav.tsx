@@ -8,6 +8,7 @@ import {
   FileText,
   Layers,
   Tags,
+  Receipt,
   CalendarClock,
   CalendarCheck,
 } from "lucide-react";
@@ -17,6 +18,7 @@ const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/projects", label: "Projects", icon: FolderGit2 },
   { href: "/admin/plans", label: "Plans", icon: Layers },
+  { href: "/admin/invoices", label: "Invoices", icon: Receipt },
   { href: "/admin/content", label: "Content", icon: FileText },
   { href: "/admin/pricing", label: "Pricing & offers", icon: Tags },
   { href: "/admin/availability", label: "Availability", icon: CalendarClock },

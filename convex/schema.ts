@@ -26,6 +26,13 @@ export const priceUnit = v.union(
   v.literal("per-project"),
 );
 
+export const invoiceStatus = v.union(
+  v.literal("draft"),
+  v.literal("sent"),
+  v.literal("paid"),
+  v.literal("cancelled"),
+);
+
 export default defineSchema({
   // Editable site content overrides (a singleton, key="site"). The public site
   // reads these reactively and falls back to lib/site-config.ts for any field
@@ -174,6 +181,26 @@ export default defineSchema({
     scope: v.optional(v.string()),
     calendarId: v.string(), // usually "primary"
   }),
+
+  // Client invoices — created in the admin, exported as branded PDFs.
+  invoices: defineTable({
+    number: v.string(), // e.g. "INV-1001"
+    clientName: v.string(),
+    clientCompany: v.optional(v.string()),
+    clientEmail: v.optional(v.string()),
+    clientAddress: v.optional(v.string()),
+    items: v.array(v.object({ description: v.string(), amount: v.number() })),
+    taxRate: v.number(), // percent, e.g. 13 for 13% HST
+    currency: v.string(), // e.g. "CAD"
+    issueDate: v.number(), // epoch ms
+    dueInDays: v.number(), // editable; dueDate derives from issueDate + this
+    dueDate: v.number(), // epoch ms
+    notes: v.optional(v.string()),
+    status: invoiceStatus,
+    createdAt: v.number(),
+  })
+    .index("by_number", ["number"])
+    .index("by_created", ["createdAt"]),
 
   // Cached busy intervals pulled from the owner's calendar by cron, so the
   // slot query stays pure/fast and never blocks on the Google API.

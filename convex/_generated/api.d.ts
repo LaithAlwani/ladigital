@@ -15,6 +15,7 @@ import type * as google from "../google.js";
 import type * as googleBusy from "../googleBusy.js";
 import type * as googleTokens from "../googleTokens.js";
 import type * as http from "../http.js";
+import type * as invoices from "../invoices.js";
 import type * as lib_requireAdmin from "../lib/requireAdmin.js";
 import type * as lib_time from "../lib/time.js";
 import type * as plans from "../plans.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   googleBusy: typeof googleBusy;
   googleTokens: typeof googleTokens;
   http: typeof http;
+  invoices: typeof invoices;
   "lib/requireAdmin": typeof lib_requireAdmin;
   "lib/time": typeof lib_time;
   plans: typeof plans;
