@@ -13,10 +13,11 @@ export default async function InvoiceEditorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const invoice = await fetchQuery(api.invoices.getAdmin, {
-    adminKey: adminWriteKey(),
-    id: id as Id<"invoices">,
-  }).catch(() => null);
+  const key = adminWriteKey();
+  const [invoice, clients] = await Promise.all([
+    fetchQuery(api.invoices.getAdmin, { adminKey: key, id: id as Id<"invoices"> }).catch(() => null),
+    fetchQuery(api.clients.listAdmin, { adminKey: key }).catch(() => []),
+  ]);
   if (!invoice) notFound();
-  return <InvoiceEditor invoice={invoice} />;
+  return <InvoiceEditor invoice={invoice} clients={clients} />;
 }

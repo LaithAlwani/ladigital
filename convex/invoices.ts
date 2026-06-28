@@ -20,7 +20,29 @@ const invoiceFields = {
   dueInDays: v.number(),
   notes: v.optional(v.string()),
   status: invoiceStatus,
+  recurring: v.optional(v.boolean()),
 };
+
+/** Add `n` calendar months to an epoch, clamping to the last day on overflow. */
+function addMonths(epoch: number, n: number): number {
+  const d = new Date(epoch);
+  const day = d.getDate();
+  d.setMonth(d.getMonth() + n);
+  if (d.getDate() < day) d.setDate(0); // e.g. Jan 31 + 1mo -> Feb 28
+  return d.getTime();
+}
+
+/** First monthly occurrence strictly in the future, starting one month after issue. */
+function firstFutureMonthly(issueEpoch: number): number {
+  let t = addMonths(issueEpoch, 1);
+  const now = Date.now();
+  let guard = 0;
+  while (t <= now && guard < 600) {
+    t = addMonths(t, 1);
+    guard += 1;
+  }
+  return t;
+}
 
 async function nextNumber(ctx: QueryCtx): Promise<string> {
   const all = await ctx.db.query("invoices").collect();
@@ -67,10 +89,23 @@ export const update = mutation({
   args: { adminKey: v.string(), id: v.id("invoices"), ...invoiceFields },
   handler: async (ctx, args): Promise<void> => {
     assertAdmin(args.adminKey);
-    const { adminKey: _k, id, ...data } = args;
+    const { adminKey: _k, id, recurring, ...rest } = args;
+    const existing = await ctx.db.get(id);
+
+    // nextRunAt: set on first enable, preserve the cron-advanced schedule while
+    // it stays on, clear when turned off.
+    let nextRunAt = existing?.nextRunAt;
+    if (recurring) {
+      if (typeof nextRunAt !== "number") nextRunAt = firstFutureMonthly(rest.issueDate);
+    } else {
+      nextRunAt = undefined;
+    }
+
     await ctx.db.patch(id, {
-      ...data,
-      dueDate: data.issueDate + data.dueInDays * DAY,
+      ...rest,
+      dueDate: rest.issueDate + rest.dueInDays * DAY,
+      recurring: !!recurring,
+      nextRunAt,
     });
   },
 });
@@ -91,16 +126,26 @@ export const remove = mutation({
   },
 });
 
-/** Create a blank draft and return its id (admin clicks "New invoice"). */
+/** Create a blank draft and return its id (admin clicks "New invoice"). Optional
+ *  client fields pre-fill the bill-to from a chosen saved client. */
 export const createBlank = mutation({
-  args: { adminKey: v.string() },
+  args: {
+    adminKey: v.string(),
+    clientName: v.optional(v.string()),
+    clientCompany: v.optional(v.string()),
+    clientEmail: v.optional(v.string()),
+    clientAddress: v.optional(v.string()),
+  },
   handler: async (ctx, args): Promise<Id<"invoices">> => {
     assertAdmin(args.adminKey);
     const number = await nextNumber(ctx);
     const now = Date.now();
     return ctx.db.insert("invoices", {
       number,
-      clientName: "",
+      clientName: args.clientName ?? "",
+      clientCompany: args.clientCompany,
+      clientEmail: args.clientEmail,
+      clientAddress: args.clientAddress,
       items: [{ description: "", amount: 0 }],
       taxRate: 13,
       currency: "CAD",
@@ -110,5 +155,63 @@ export const createBlank = mutation({
       status: "draft",
       createdAt: now,
     });
+  },
+});
+
+// --- Recurring (used by the cron route) ---------------------------------
+
+/** Recurring invoices whose next run time has arrived. */
+export const dueRecurring = query({
+  args: { adminKey: v.string() },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    const now = Date.now();
+    const all = await ctx.db.query("invoices").collect();
+    return all.filter(
+      (i) => i.recurring === true && typeof i.nextRunAt === "number" && i.nextRunAt <= now,
+    );
+  },
+});
+
+/** Generate one fresh copy of a recurring invoice and advance its schedule.
+ *  Returns the new invoice id (or null if the source is no longer recurring). */
+export const spawnRecurring = mutation({
+  args: { adminKey: v.string(), sourceId: v.id("invoices") },
+  handler: async (ctx, args): Promise<Id<"invoices"> | null> => {
+    assertAdmin(args.adminKey);
+    const src = await ctx.db.get(args.sourceId);
+    if (!src || !src.recurring || typeof src.nextRunAt !== "number") return null;
+
+    const issueDate = src.nextRunAt;
+    const number = await nextNumber(ctx);
+    const newId = await ctx.db.insert("invoices", {
+      number,
+      clientName: src.clientName,
+      clientCompany: src.clientCompany,
+      clientEmail: src.clientEmail,
+      clientAddress: src.clientAddress,
+      items: src.items,
+      taxRate: src.taxRate,
+      currency: src.currency,
+      issueDate,
+      dueInDays: src.dueInDays,
+      dueDate: issueDate + src.dueInDays * DAY,
+      notes: src.notes,
+      status: "draft", // the cron emails it, then marks it "sent"
+      recurring: false,
+      createdAt: Date.now(),
+    });
+
+    // Advance the template to the next future monthly occurrence.
+    let next = addMonths(src.nextRunAt, 1);
+    const now = Date.now();
+    let guard = 0;
+    while (next <= now && guard < 600) {
+      next = addMonths(next, 1);
+      guard += 1;
+    }
+    await ctx.db.patch(args.sourceId, { nextRunAt: next });
+
+    return newId;
   },
 });

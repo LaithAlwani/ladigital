@@ -25,9 +25,11 @@ import {
   setProjectPublished,
 } from "@/app/actions/admin-projects";
 import { cn } from "@/lib/cn";
+import { useConfirm } from "./confirm-dialog";
 
 export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [items, setItems] = React.useState(initial);
   const [pending, startTransition] = React.useTransition();
   const [busyId, setBusyId] = React.useState<string | null>(null);
@@ -82,8 +84,14 @@ export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
     });
   }
 
-  function remove(p: ResolvedProject) {
-    if (!confirm(`Delete "${p.title}"? This can't be undone.`)) return;
+  async function remove(p: ResolvedProject) {
+    const ok = await confirm({
+      title: "Delete project",
+      message: `Delete "${p.title || "this project"}"? This can't be undone.`,
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     setBusyId(p._id);
     startTransition(async () => {
       await removeProject(p._id);

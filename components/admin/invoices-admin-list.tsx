@@ -20,17 +20,37 @@ import {
 } from "@/app/actions/admin-invoices";
 import { generateInvoicePdf } from "@/lib/invoice-pdf";
 import { cn } from "@/lib/cn";
+import { useConfirm } from "./confirm-dialog";
 
 type Invoice = Doc<"invoices">;
+type Client = Doc<"clients">;
 
-export function InvoicesAdminList({ initial }: { initial: Invoice[] }) {
+export function InvoicesAdminList({
+  initial,
+  clients,
+}: {
+  initial: Invoice[];
+  clients: Client[];
+}) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, startTransition] = React.useTransition();
   const [busyId, setBusyId] = React.useState<string | null>(null);
+  const [newClientId, setNewClientId] = React.useState("");
 
   function newInvoice() {
+    const client = clients.find((c) => c._id === newClientId);
     startTransition(async () => {
-      const id = await createBlankInvoice();
+      const id = await createBlankInvoice(
+        client
+          ? {
+              name: client.name,
+              company: client.company,
+              email: client.email,
+              address: client.address,
+            }
+          : undefined,
+      );
       router.push(`/admin/invoices/${id}`);
     });
   }
@@ -44,8 +64,14 @@ export function InvoicesAdminList({ initial }: { initial: Invoice[] }) {
     });
   }
 
-  function remove(inv: Invoice) {
-    if (!confirm(`Delete invoice ${inv.number}? This can't be undone.`)) return;
+  async function remove(inv: Invoice) {
+    const ok = await confirm({
+      title: "Delete invoice",
+      message: `Delete invoice ${inv.number}? This can't be undone.`,
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     setBusyId(inv._id);
     startTransition(async () => {
       await removeInvoice(inv._id);
@@ -77,15 +103,32 @@ export function InvoicesAdminList({ initial }: { initial: Invoice[] }) {
           <h1 className="font-display text-3xl font-semibold text-foreground">Invoices</h1>
           <p className="mt-1 text-sm text-muted">Create, track, and export client invoices.</p>
         </div>
-        <button
-          type="button"
-          onClick={newInvoice}
-          disabled={pending}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60"
-        >
-          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          New invoice
-        </button>
+        <div className="flex items-center gap-2">
+          {clients.length > 0 ? (
+            <select
+              value={newClientId}
+              onChange={(e) => setNewClientId(e.target.value)}
+              title="Pre-fill from a client"
+              className="h-11 rounded-lg border border-border bg-ink/40 px-3 text-sm text-foreground focus:border-brand-orange focus:outline-none"
+            >
+              <option value="">No client</option>
+              {clients.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.company || c.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          <button
+            type="button"
+            onClick={newInvoice}
+            disabled={pending}
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60"
+          >
+            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            New invoice
+          </button>
+        </div>
       </div>
 
       {initial.length === 0 ? (

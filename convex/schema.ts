@@ -182,6 +182,17 @@ export default defineSchema({
     calendarId: v.string(), // usually "primary"
   }),
 
+  // Saved clients (CRM-lite) — reusable bill-to details for invoices.
+  clients: defineTable({
+    name: v.string(), // contact name
+    company: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    address: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_created", ["createdAt"]),
+
   // Client invoices — created in the admin, exported as branded PDFs.
   invoices: defineTable({
     number: v.string(), // e.g. "INV-1001"
@@ -197,6 +208,10 @@ export default defineSchema({
     dueDate: v.number(), // epoch ms
     notes: v.optional(v.string()),
     status: invoiceStatus,
+    // When `recurring`, a cron generates a fresh copy each month; `nextRunAt`
+    // is the next scheduled generation time (epoch ms).
+    recurring: v.optional(v.boolean()),
+    nextRunAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_number", ["number"])

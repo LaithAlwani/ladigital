@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, Download, Loader2, Save, Check } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Download, Loader2, Save, Check, Mail, UserPlus } from "lucide-react";
 import type { Doc } from "@/convex/_generated/dataModel";
 import {
   INVOICE_STATUSES,
@@ -12,9 +12,10 @@ import {
   type InvoiceItem,
   type InvoiceStatus,
 } from "@/lib/invoice";
-import { updateInvoice } from "@/app/actions/admin-invoices";
-import { generateInvoicePdf } from "@/lib/invoice-pdf";
-import { TextField, TextArea, NumberField, Card, inputBase, labelBase } from "./admin-fields";
+import { updateInvoice, sendInvoiceEmail } from "@/app/actions/admin-invoices";
+import { upsertClient } from "@/app/actions/admin-clients";
+import { generateInvoicePdf, invoicePdfBase64 } from "@/lib/invoice-pdf";
+import { TextField, TextArea, NumberField, Toggle, Card, inputBase, labelBase } from "./admin-fields";
 import { cn } from "@/lib/cn";
 
 function toDateInput(ms: number): string {
@@ -29,7 +30,13 @@ function fromDateInput(s: string): number {
 
 const DAY = 86_400_000;
 
-export function InvoiceEditor({ invoice }: { invoice: Doc<"invoices"> }) {
+export function InvoiceEditor({
+  invoice,
+  clients,
+}: {
+  invoice: Doc<"invoices">;
+  clients: Doc<"clients">[];
+}) {
   const router = useRouter();
 
   const [clientName, setClientName] = React.useState(invoice.clientName);
@@ -45,12 +52,84 @@ export function InvoiceEditor({ invoice }: { invoice: Doc<"invoices"> }) {
   const [dueInDays, setDueInDays] = React.useState(invoice.dueInDays);
   const [notes, setNotes] = React.useState(invoice.notes ?? "");
   const [status, setStatus] = React.useState<InvoiceStatus>(invoice.status as InvoiceStatus);
+  const [recurring, setRecurring] = React.useState(!!invoice.recurring);
 
   const [saving, setSaving] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
   const [downloading, setDownloading] = React.useState(false);
+  const [emailing, setEmailing] = React.useState(false);
+  const [savingClient, setSavingClient] = React.useState(false);
+  const [flash, setFlash] = React.useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   const totals = invoiceTotals(items, taxRate);
+
+  function pickClient(id: string) {
+    const c = clients.find((x) => x._id === id);
+    if (!c) return;
+    setClientCompany(c.company ?? "");
+    setClientName(c.name ?? "");
+    setClientEmail(c.email ?? "");
+    setClientAddress(c.address ?? "");
+  }
+
+  function saveToClients() {
+    setSavingClient(true);
+    setFlash(null);
+    (async () => {
+      try {
+        await upsertClient({
+          name: clientName,
+          company: clientCompany,
+          email: clientEmail,
+          address: clientAddress,
+        });
+        router.refresh();
+        setFlash({ kind: "ok", text: "Client saved to your list." });
+      } catch {
+        setFlash({ kind: "err", text: "Could not save the client." });
+      } finally {
+        setSavingClient(false);
+      }
+    })();
+  }
+
+  async function emailToClient() {
+    if (!clientEmail.trim()) {
+      setFlash({ kind: "err", text: "Add the client's email first." });
+      return;
+    }
+    setEmailing(true);
+    setFlash(null);
+    try {
+      await updateInvoice(invoice._id, payload());
+      const base64 = await invoicePdfBase64({
+        number: invoice.number,
+        clientName,
+        clientCompany: clientCompany || undefined,
+        clientEmail: clientEmail || undefined,
+        clientAddress: clientAddress || undefined,
+        items: payload().items,
+        taxRate: Number(taxRate) || 0,
+        currency,
+        issueDate,
+        dueDate: issueDate + (Number(dueInDays) || 0) * DAY,
+        notes: notes || undefined,
+      });
+      const res = await sendInvoiceEmail(invoice._id, base64);
+      if (res.ok) {
+        setFlash({ kind: "ok", text: `Invoice emailed to ${clientEmail}.` });
+        setStatus("sent");
+        router.refresh();
+      } else {
+        setFlash({ kind: "err", text: res.error ?? "Could not send the email." });
+      }
+    } catch (err) {
+      console.error(err);
+      setFlash({ kind: "err", text: "Could not send the email." });
+    } finally {
+      setEmailing(false);
+    }
+  }
 
   function setItem(i: number, patch: Partial<InvoiceItem>) {
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
@@ -75,6 +154,7 @@ export function InvoiceEditor({ invoice }: { invoice: Doc<"invoices"> }) {
       dueInDays: Number(dueInDays) || 0,
       notes,
       status,
+      recurring,
     };
   }
 
@@ -131,7 +211,16 @@ export function InvoiceEditor({ invoice }: { invoice: Doc<"invoices"> }) {
           <ArrowLeft className="h-4 w-4" />
           All invoices
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={emailToClient}
+            disabled={emailing || saving}
+            className="inline-flex h-11 items-center gap-2 rounded-lg border border-border-strong px-4 text-sm font-medium text-foreground transition-colors hover:border-brand-orange hover:text-brand-orange disabled:opacity-60"
+          >
+            {emailing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+            Email to client
+          </button>
           <button
             type="button"
             onClick={download}
@@ -155,16 +244,58 @@ export function InvoiceEditor({ invoice }: { invoice: Doc<"invoices"> }) {
 
       <div>
         <h1 className="font-display text-3xl font-semibold text-foreground">{invoice.number}</h1>
-        <p className="mt-1 text-sm text-muted">Edit the details, then download the PDF or mark it paid.</p>
+        <p className="mt-1 text-sm text-muted">
+          Edit the details, then download or email the PDF, or mark it paid.
+        </p>
       </div>
 
+      {flash ? (
+        <div
+          className={cn(
+            "rounded-card border px-4 py-2.5 text-sm",
+            flash.kind === "ok"
+              ? "border-success/30 bg-success/10 text-success"
+              : "border-danger/30 bg-danger/10 text-danger",
+          )}
+        >
+          {flash.text}
+        </div>
+      ) : null}
+
       <Card title="Bill to">
+        {clients.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            <label className={labelBase}>Use a saved client</label>
+            <select
+              value=""
+              onChange={(e) => e.target.value && pickClient(e.target.value)}
+              className={cn(inputBase, "sm:max-w-xs")}
+            >
+              <option value="">Select a client…</option>
+              {clients.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.company || c.name}
+                  {c.company && c.name ? ` — ${c.name}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextField label="Client company" value={clientCompany} onChange={setClientCompany} />
           <TextField label="Contact name" value={clientName} onChange={setClientName} />
           <TextField label="Email" value={clientEmail} onChange={setClientEmail} type="email" />
           <TextField label="Address" value={clientAddress} onChange={setClientAddress} />
         </div>
+        <button
+          type="button"
+          onClick={saveToClients}
+          disabled={savingClient}
+          className="inline-flex w-fit items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-brand-orange/50 hover:text-brand-orange disabled:opacity-60"
+        >
+          {savingClient ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+          Save to clients
+        </button>
       </Card>
 
       <Card title="Line items">
@@ -259,6 +390,18 @@ export function InvoiceEditor({ invoice }: { invoice: Doc<"invoices"> }) {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-ink/30 p-4">
+          <Toggle
+            label="Recurring — auto-generate &amp; email a copy every month"
+            checked={recurring}
+            onChange={setRecurring}
+          />
+          <p className="mt-2 pl-14 text-xs text-muted-2">
+            A new invoice with the same line items is created one month from the issue date (and each
+            month after) and automatically emailed to the client.
+          </p>
         </div>
         <TextArea
           label="Notes (payment terms, thank-you, etc.)"

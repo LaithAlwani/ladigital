@@ -9,6 +9,7 @@ import {
   Layers,
   Tags,
   Receipt,
+  Users,
   CalendarClock,
   CalendarCheck,
 } from "lucide-react";
@@ -19,6 +20,7 @@ const ITEMS = [
   { href: "/admin/projects", label: "Projects", icon: FolderGit2 },
   { href: "/admin/plans", label: "Plans", icon: Layers },
   { href: "/admin/invoices", label: "Invoices", icon: Receipt },
+  { href: "/admin/clients", label: "Clients", icon: Users },
   { href: "/admin/content", label: "Content", icon: FileText },
   { href: "/admin/pricing", label: "Pricing & offers", icon: Tags },
   { href: "/admin/availability", label: "Availability", icon: CalendarClock },

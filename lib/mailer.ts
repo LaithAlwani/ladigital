@@ -41,12 +41,19 @@ export function mailTo(): string {
   return process.env.MAIL_TO?.trim() || "laithalwani@gmail.com";
 }
 
+export type MailAttachment = {
+  filename: string;
+  content: string; // base64-encoded
+  contentType?: string;
+};
+
 export type SendMailArgs = {
   to: string;
   subject: string;
   html: string;
   replyTo?: string;
   from?: string;
+  attachments?: MailAttachment[];
 };
 
 export type SendResult =
@@ -74,6 +81,12 @@ export async function sendMail(args: SendMailArgs): Promise<SendResult> {
       subject: args.subject,
       html: args.html,
       replyTo: args.replyTo,
+      attachments: args.attachments?.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+        encoding: "base64",
+        contentType: a.contentType ?? "application/pdf",
+      })),
     });
     return { ok: true, messageId: info.messageId };
   } catch (err) {
