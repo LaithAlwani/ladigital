@@ -4,9 +4,20 @@ import { api } from "@/convex/_generated/api";
 
 export const dynamic = "force-dynamic";
 
+// The Convex HTTP-actions host is the `.site` sibling of the `.cloud` URL, so
+// derive it from NEXT_PUBLIC_CONVEX_URL (always set) rather than depending on a
+// separate NEXT_PUBLIC_CONVEX_SITE_URL that may be missing in some environments.
+function convexSiteUrl(): string | null {
+  const explicit = process.env.NEXT_PUBLIC_CONVEX_SITE_URL?.trim().replace(/\/$/, "");
+  if (explicit) return explicit;
+  const cloud = process.env.NEXT_PUBLIC_CONVEX_URL?.trim().replace(/\/$/, "");
+  if (!cloud) return null;
+  return cloud.replace(/\.convex\.cloud$/, ".convex.site");
+}
+
 export default async function ConnectPage() {
   const connected = await fetchQuery(api.googleTokens.isConnected, {}).catch(() => false);
-  const siteUrl = process.env.NEXT_PUBLIC_CONVEX_SITE_URL?.trim().replace(/\/$/, "");
+  const siteUrl = convexSiteUrl();
   const connectUrl = siteUrl ? `${siteUrl}/google/connect` : null;
 
   return (
@@ -49,7 +60,7 @@ export default async function ConnectPage() {
           </a>
         ) : (
           <p className="mt-6 text-sm text-danger">
-            NEXT_PUBLIC_CONVEX_SITE_URL is not set — can't build the connect link.
+            NEXT_PUBLIC_CONVEX_URL is not set — can't build the connect link.
           </p>
         )}
 
