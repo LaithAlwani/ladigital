@@ -5,7 +5,7 @@ import { useInView, useReducedMotion } from "motion/react";
 import { formatCAD } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-type Unit = "one-time" | "per-month" | "per-project" | "per-page";
+type Unit = "one-time" | "per-month" | "per-project";
 
 type Props = {
   price: number;
@@ -69,11 +69,9 @@ export function PriceDisplay({
     );
   }
 
-  // Suffix on the main price: "/mo" for a pure monthly retainer, "/page" for
-  // per-page pricing (SEO). Setup-only and setup+monthly packages render no
-  // suffix — the monthly is shown on its own line below.
-  const unitSuffix = unit === "per-month" ? "/mo" : unit === "per-page" ? "/page" : null;
-  const mainSuffix = monthlyPrice ? null : unitSuffix;
+  // Suffix on the main price: "/mo" for a pure monthly retainer. Setup-only and
+  // setup+monthly packages render no suffix — the monthly is on its own line.
+  const mainSuffix = monthlyPrice ? null : unit === "per-month" ? "/mo" : null;
 
   return (
     <div ref={ref} className={cn("flex flex-col gap-1.5", className)}>

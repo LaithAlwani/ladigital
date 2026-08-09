@@ -1,4 +1,4 @@
-export type PriceUnit = "one-time" | "per-month" | "per-project" | "per-page";
+export type PriceUnit = "one-time" | "per-month" | "per-project";
 
 /** A line item in an "à la carte" style package option list. */
 export type ServiceOption = {

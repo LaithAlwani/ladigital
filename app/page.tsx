@@ -16,12 +16,12 @@ import { siteConfig, CONTENT_LAST_UPDATED } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: "Affordable professional websites from $49/month — Ottawa, Canada",
   description:
-    "Professional, mobile-friendly websites for small businesses from $49/month — hosting & maintenance included. Plus per-page SEO, custom apps, and software.",
+    "Professional, mobile-friendly websites for small businesses from $49/month — hosting, maintenance, and basic SEO included. Plus custom apps and software.",
   alternates: { canonical: "/" },
   openGraph: {
     title: `${siteConfig.company.name} — Professional websites without the agency price tag`,
     description:
-      "A real, mobile-friendly website designed, hosted, and maintained for $49/month. Plus SEO, custom software, and apps as you grow.",
+      "A real, mobile-friendly website designed, hosted, and maintained for $49/month. Plus custom software and apps as you grow.",
     url: "/",
     images: [siteConfig.seo.ogImage],
   },

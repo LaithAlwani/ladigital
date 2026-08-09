@@ -40,9 +40,9 @@ export const faqItems: FaqItem[] = [
       "You own your content and your domain. If you ever decide to leave, we help you take what's yours — no hostage situations.",
   },
   {
-    question: "How does per-page SEO work?",
+    question: "Is SEO included?",
     answer:
-      "Instead of a big monthly retainer, we optimize your site one page at a time, so you only pay for the pages you want to rank. We'll confirm your page count and the rate on a quick call.",
+      "Yes — every website plan includes basic on-page SEO and Google setup so customers can find you. If you want a bigger push (more pages or deeper optimization), we can scope extra SEO work on a quick call.",
   },
   {
     question: "Can you build a mobile app, desktop app, or custom software?",

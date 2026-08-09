@@ -5,7 +5,7 @@ import { fetchMutation } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { isAdmin, adminWriteKey } from "@/lib/admin-session";
 
-type Unit = "one-time" | "per-month" | "per-project" | "per-page";
+type Unit = "one-time" | "per-month" | "per-project";
 
 export type PlanInput = {
   slug?: string;

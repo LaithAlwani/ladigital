@@ -24,7 +24,6 @@ export const priceUnit = v.union(
   v.literal("one-time"),
   v.literal("per-month"),
   v.literal("per-project"),
-  v.literal("per-page"),
 );
 
 export const invoiceStatus = v.union(

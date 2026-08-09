@@ -18,7 +18,7 @@ import {
 } from "./admin-fields";
 import { cn } from "@/lib/cn";
 
-type Unit = "one-time" | "per-month" | "per-project" | "per-page";
+type Unit = "one-time" | "per-month" | "per-project";
 
 type PlanRow = {
   categoryId: string;

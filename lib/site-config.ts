@@ -19,7 +19,7 @@ export const siteConfig: SiteConfig = {
     legalName: "LA Digital",
     tagline: "Professional websites without the agency price tag",
     description:
-      "Affordable, professional websites for small businesses from $49/month — hosting and maintenance included. Plus SEO, custom apps, and software as you grow.",
+      "Affordable, professional websites for small businesses from $49/month — hosting, maintenance, and basic SEO included. Plus custom apps and software as you grow.",
     heroHeadline: "Professional websites without the agency price tag.",
     heroSubheadline:
       "A real, mobile-friendly website — designed, hosted, and maintained for just $49/month. No big upfront cost, no agency runaround.",
@@ -139,42 +139,7 @@ export const siteConfig: SiteConfig = {
     },
 
     // ====================================================================
-    // 2. SEO — priced per page (no big monthly retainer).
-    //    NOTE: price is a placeholder rate until confirmed.
-    // ====================================================================
-    {
-      id: "seo",
-      name: "SEO",
-      summary: "Get found on Google — priced simply, per page.",
-      longDescription:
-        "We optimize your site page by page so customers searching for what you do actually find you. Pay per page — no big monthly retainer.",
-      iconName: "TrendingUp",
-      image: "/3.jpg",
-      packages: [
-        {
-          id: "seo-per-page",
-          name: "SEO",
-          tagline: "On-page SEO, priced per page — start small and scale.",
-          price: 29,
-          currency: "CAD",
-          unit: "per-page",
-          features: [
-            "On-page optimization",
-            "Keyword targeting",
-            "Meta titles & descriptions",
-            "Google Business setup",
-            "Per-page pricing — no big retainer",
-          ],
-          notes: [
-            "Per-page pricing — confirm your page count on a quick call.",
-          ],
-        },
-      ],
-      cta: { label: "Rank higher on Google", href: "/book" },
-    },
-
-    // ====================================================================
-    // 3. CUSTOM SOFTWARE & APPS — quote-based (price 0 → "Custom quote").
+    // 2. CUSTOM SOFTWARE & APPS — quote-based (price 0 → "Custom quote").
     // ====================================================================
     {
       id: "custom",
@@ -233,14 +198,14 @@ export const siteConfig: SiteConfig = {
     { number: "01", title: "Tell us about your business", description: "A quick call or form — no jargon, no pressure." },
     { number: "02", title: "We design your site", description: "A custom, mobile-friendly design built around your business." },
     { number: "03", title: "Go live for $49/month", description: "We launch, host, and maintain it — no big upfront bill." },
-    { number: "04", title: "Grow when you're ready", description: "Add SEO, custom software, or Omnivo AI as your business grows." },
+    { number: "04", title: "Grow when you're ready", description: "Add custom software, an app, or Omnivo AI as your business grows." },
   ],
 
   seo: {
     defaultTitle: "LA Digital — Affordable professional websites from $49/month",
     titleTemplate: "%s | LA Digital",
     defaultDescription:
-      "Professional, mobile-friendly websites for small businesses from $49/month — hosting & maintenance included. Plus per-page SEO, custom apps, and software. Ottawa, Canada.",
+      "Professional, mobile-friendly websites for small businesses from $49/month — hosting, maintenance, and basic SEO included. Plus custom apps and software. Ottawa, Canada.",
     ogImage: "/og-default.png",
     siteUrl: "https://ladigital.ca",
     keywords: [
@@ -258,7 +223,6 @@ export const siteConfig: SiteConfig = {
       "affordable website Canada",
       "web design Canada",
       // Other services
-      "per-page SEO",
       "small business SEO",
       "custom software development",
       "custom mobile app",

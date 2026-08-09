@@ -11,15 +11,14 @@ import { fadeUp, fadeInstant, stagger } from "@/lib/motion";
 type Svc = { icon: string; title: string; price: string; body: string };
 
 const SERVICES: Svc[] = [
-  { icon: "TrendingUp", title: "SEO", price: "From $29/page", body: "Get found on Google — optimized page by page, no big monthly retainer." },
   { icon: "Smartphone", title: "Custom Mobile App", price: "Custom quote", body: "iOS & Android apps for your business, built and maintained by us." },
   { icon: "Server", title: "Custom Desktop App", price: "Custom quote", body: "Windows & macOS apps for your team and offline workflows." },
   { icon: "Layers", title: "Custom Software", price: "Custom quote", body: "Bespoke software built around exactly how you work." },
   { icon: "Globe", title: "Hosting & Maintenance", price: "Included", body: "Comes with every $49 website — or we'll host & maintain a site you already have." },
 ];
 
-// The cross-sell grid: SEO, custom software/apps, and hosting. Every card leads
-// to a quick quote — the funnel after the $49 website.
+// The cross-sell grid: custom software/apps and hosting. Every card leads to a
+// quick quote — the funnel after the $49 website.
 export function MoreServices() {
   const reduced = useReducedMotion();
 
@@ -28,7 +27,7 @@ export function MoreServices() {
       <SectionHeading
         eyebrow="Grow when you're ready"
         title="More ways we help your business grow."
-        description="Start with a website, then add SEO, custom software, or a full app as you grow — same friendly team, same fair pricing."
+        description="Start with a website, then add custom software or a full app as you grow — same friendly team, same fair pricing."
       />
 
       <motion.div
