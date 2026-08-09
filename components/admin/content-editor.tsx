@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "./toast";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
@@ -97,7 +99,7 @@ export function ContentEditor({ settings }: { settings: Settings }) {
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error(err);
-      alert("Could not save. Please try again.");
+      toast("Could not save. Please try again.", "error");
     } finally {
       setSaving(false);
     }

@@ -41,7 +41,7 @@ export function MobileMenu({ open, onClose, nav, activeSection }: Props) {
         <>
           <motion.div
             key="backdrop"
-            className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-50 bg-foreground/25 backdrop-blur-sm md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -51,7 +51,7 @@ export function MobileMenu({ open, onClose, nav, activeSection }: Props) {
           />
           <motion.aside
             key="panel"
-            className="fixed inset-y-0 right-0 z-50 flex w-[85%] max-w-sm flex-col gap-6 border-l border-border bg-ink-2 p-6 md:hidden"
+            className="fixed inset-y-0 right-0 z-50 flex w-[85%] max-w-sm flex-col gap-6 border-l border-border bg-surface p-6 shadow-card-hover md:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation"
@@ -101,7 +101,7 @@ export function MobileMenu({ open, onClose, nav, activeSection }: Props) {
               </div>
               <SocialLinks size="md" />
               <Button href="/book" variant="primary" fullWidth onClick={onClose}>
-                Start a project
+                Get your $49 website
               </Button>
             </div>
           </motion.aside>

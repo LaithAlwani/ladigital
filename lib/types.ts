@@ -1,4 +1,4 @@
-export type PriceUnit = "one-time" | "per-month" | "per-project";
+export type PriceUnit = "one-time" | "per-month" | "per-project" | "per-page";
 
 /** A line item in an "à la carte" style package option list. */
 export type ServiceOption = {
@@ -133,5 +133,14 @@ export type SiteConfig = {
     fromEmail: string;
     toEmail: string;
     replyTo?: string;
+  };
+  /**
+   * Omnivo AI — a separate brand/product in the LA Digital ecosystem (AI
+   * automation), hosted on its own domain. The marketing site only links out.
+   */
+  omnivo: {
+    name: string;
+    tagline: string;
+    url: string;
   };
 };

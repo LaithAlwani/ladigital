@@ -5,14 +5,21 @@ import { Plus } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { faqItems } from "@/lib/faq";
+import { CONTENT_LAST_UPDATED } from "@/lib/site-config";
 import { fadeUp, stagger } from "@/lib/motion";
+
+// Deterministic formatted "last updated" date (freshness signal for AEO).
+const UPDATED = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+}).format(new Date(`${CONTENT_LAST_UPDATED}T12:00:00Z`));
 
 /**
  * FAQ section. Uses native `<details>` / `<summary>` so the content is in the
- * server-rendered HTML — important for SEO (Google indexes the answers) and
- * for matching the FAQPage JSON-LD on the same page.
- *
- * Mounted on home and /services so visitors hit answers wherever they land.
+ * server-rendered HTML — important for SEO/AEO (answer engines index the text)
+ * and for matching the FAQPage JSON-LD on the same page.
  */
 export function Faq() {
   const reduced = useReducedMotion();
@@ -22,7 +29,7 @@ export function Faq() {
       <SectionHeading
         eyebrow="Frequently asked"
         title="Answers to the questions we get most."
-        description="Still curious? Ask Leo in the bottom-right corner or book a discovery call — we'll walk you through anything not covered here."
+        description="Still curious? Book a quick call — we'll walk you through anything not covered here."
       />
 
       <motion.div
@@ -50,6 +57,8 @@ export function Faq() {
           </motion.details>
         ))}
       </motion.div>
+
+      <p className="mt-8 text-center font-mono text-xs text-muted-2">Last updated {UPDATED}</p>
     </Section>
   );
 }

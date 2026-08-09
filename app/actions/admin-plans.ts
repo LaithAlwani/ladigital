@@ -5,7 +5,7 @@ import { fetchMutation } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { isAdmin, adminWriteKey } from "@/lib/admin-session";
 
-type Unit = "one-time" | "per-month" | "per-project";
+type Unit = "one-time" | "per-month" | "per-project" | "per-page";
 
 export type PlanInput = {
   slug?: string;
@@ -29,5 +29,4 @@ export async function savePlans(categoryId: string, plans: PlanInput[]): Promise
     plans,
   });
   revalidatePath("/");
-  revalidatePath("/services");
 }

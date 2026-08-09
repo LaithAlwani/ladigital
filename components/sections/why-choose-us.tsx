@@ -17,8 +17,8 @@ export function WhyChooseUs() {
         <div>
           <SectionHeading
             eyebrow="Why LA Digital"
-            title="Premium work, plain prices, real humans."
-            description="We're a small team focused on doing the work right — not a faceless agency that hands you off to interns after the kickoff call."
+            title="Real websites. Real support. Fair prices."
+            description="We're a small Ottawa team that builds proper websites for small businesses — no bloated agency retainers, and we don't disappear after launch."
           />
 
           <motion.ul
@@ -63,7 +63,7 @@ export function WhyChooseUs() {
           />
           <div
             aria-hidden
-            className="absolute inset-0 bg-linear-to-tr from-ink/40 via-ink/10 to-transparent"
+            className="absolute inset-0 bg-linear-to-tr from-foreground/25 via-foreground/5 to-transparent"
           />
           <div className="absolute bottom-0 left-0 right-0 flex flex-wrap items-center gap-2 p-5">
             <span className="rounded-pill bg-ink/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-foreground ring-1 ring-border">

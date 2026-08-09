@@ -146,7 +146,7 @@ export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
               onChange={(e) => setImportUrl(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runImport()}
               placeholder="https://example.com"
-              className="h-11 min-w-60 flex-1 rounded-lg border border-border bg-ink/40 px-3.5 text-sm text-foreground placeholder:text-muted-2 focus:border-brand-orange focus:outline-none"
+              className="h-11 min-w-60 flex-1 rounded-lg border border-border bg-surface-2 px-3.5 text-sm text-foreground placeholder:text-muted-2 focus:border-brand-orange focus:outline-none"
             />
             <button
               type="button"
@@ -221,7 +221,7 @@ export function ProjectsAdminList({ initial }: { initial: ResolvedProject[] }) {
                       {status.short}
                     </span>
                     {!p.published ? (
-                      <span className="rounded-pill border border-border bg-ink/40 px-2 py-0.5 text-[11px] text-muted-2">
+                      <span className="rounded-pill border border-border bg-surface-2 px-2 py-0.5 text-[11px] text-muted-2">
                         Draft
                       </span>
                     ) : null}

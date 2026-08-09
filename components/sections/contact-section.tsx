@@ -15,9 +15,9 @@ export function ContactSection({ defaultService, defaultPackage }: Props) {
       <div className="grid items-start gap-12 lg:grid-cols-[1fr_1.2fr]">
         <Reveal>
           <SectionHeading
-            eyebrow="Book a discovery call"
-            title="Find the plan that fits your business."
-            description="Tell us a little about your business and goals. We'll recommend the right plan, add-ons, and growth services — and reply within one business day."
+            eyebrow="Get started"
+            title="Let's get your business online."
+            description="Tell us a little about your business. We'll get your $49 website going — and point you to the right SEO or custom work as you grow. We reply within one business day."
           />
 
           <ContactDetails />

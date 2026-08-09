@@ -8,8 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // /api/* are server actions / Leo's chat + lead endpoints — no
-        // crawl value, and they're billable hits.
+        // /api/* are server actions and internal endpoints — no crawl value.
         disallow: ["/api/", "/_originals/"],
       },
     ],

@@ -1,31 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand */
+  /* Brand — orange stays the single accent, now on light. */
   --color-brand-orange: #ff6a00;
   --color-brand-orange-soft: #ff8a3d;
   --color-brand-orange-deep: #d95800;
   --color-brand-orange-glow: rgba(255, 106, 0, 0.35);
 
-  /* Surfaces (dark-first) */
-  --color-ink: #07080a;
-  --color-ink-2: #0d0f12;
-  --color-surface: #14171c;
-  --color-surface-2: #1b1f26;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
+  /* Surfaces (light-first) — "ink" is now the light page paper; kept the token
+     names so the whole app re-themes through here. */
+  --color-ink: #fafaf9;        /* page background (paper) */
+  --color-ink-2: #f5f6f4;      /* alt section / footer background */
+  --color-surface: #ffffff;    /* cards */
+  --color-surface-2: #f1f2f0;  /* subtle fills, inputs */
+  --color-border: rgba(20, 24, 31, 0.10);
+  --color-border-strong: rgba(20, 24, 31, 0.16);
 
   /* Text */
-  --color-foreground: #f5f6f7;
-  --color-muted: #a3a7ad;
-  --color-muted-2: #6b7077;
+  --color-foreground: #14181f; /* deep ink text */
+  --color-muted: #5b6270;
+  --color-muted-2: #8a909b;
 
-  /* Status */
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
+  /* Status (tuned for light) */
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
 
-  /* Type */
-  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  /* Type — Bricolage Grotesque display, Geist body, Geist Mono for prices/data. */
+  --font-display: var(--font-bricolage), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
@@ -36,11 +37,11 @@
   --radius-card: 20px;
   --radius-pill: 9999px;
 
-  /* Shadows */
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 40px -12px rgba(0, 0, 0, 0.6);
-  --shadow-card-hover: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 24px 60px -20px rgba(0, 0, 0, 0.75);
-  --shadow-glow: 0 0 0 1px rgba(255, 106, 0, 0.4), 0 20px 60px -20px rgba(255, 106, 0, 0.45);
-  --shadow-glow-soft: 0 0 0 1px rgba(255, 106, 0, 0.22), 0 16px 40px -16px rgba(255, 106, 0, 0.28);
+  /* Shadows — soft neutral on light; orange glow reserved for primary CTAs. */
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 10px 30px -12px rgba(16, 24, 40, 0.12);
+  --shadow-card-hover: 0 2px 4px rgba(16, 24, 40, 0.08), 0 18px 44px -16px rgba(16, 24, 40, 0.18);
+  --shadow-glow: 0 0 0 1px rgba(255, 106, 0, 0.35), 0 14px 32px -10px rgba(255, 106, 0, 0.40);
+  --shadow-glow-soft: 0 8px 22px -12px rgba(255, 106, 0, 0.28);
 }
 
 html,
@@ -70,79 +71,19 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Subtle ambient grid for hero / sections (used via class) */
+/* Subtle ambient grid for hero / sections (used via class) — dark lines on light. */
 .bg-grid {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(20, 24, 31, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 24, 31, 0.05) 1px, transparent 1px);
   background-size: 56px 56px;
 }
 
-/* Radial fade mask used over hero video for legibility */
-.hero-mask {
+/* Warm ambient wash used behind the hero / feature focal points. */
+.sunrise-wash {
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(7, 8, 10, 0) 0%, rgba(7, 8, 10, 0.35) 50%, rgba(7, 8, 10, 0.95) 100%),
-    linear-gradient(180deg, rgba(7, 8, 10, 0.35) 0%, rgba(7, 8, 10, 0.6) 60%, rgba(7, 8, 10, 1) 100%);
-}
-
-/* Leo chat — slim scrollbar on the textarea so it doesn't visually crash the panel. */
-.leo-textarea {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-strong) transparent;
-}
-.leo-textarea::-webkit-scrollbar {
-  width: 6px;
-}
-.leo-textarea::-webkit-scrollbar-track {
-  background: transparent;
-}
-.leo-textarea::-webkit-scrollbar-thumb {
-  background-color: var(--color-border-strong);
-  border-radius: 999px;
-}
-.leo-textarea::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-muted-2);
-}
-
-/* Leo chat — narrow, well-behaved markdown rendering inside message bubbles. */
-.leo-markdown > * + * {
-  margin-top: 0.5rem;
-}
-.leo-markdown p {
-  margin: 0;
-  line-height: 1.55;
-}
-.leo-markdown ul,
-.leo-markdown ol {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-.leo-markdown ul {
-  list-style: disc;
-}
-.leo-markdown ol {
-  list-style: decimal;
-}
-.leo-markdown li {
-  line-height: 1.5;
-}
-.leo-markdown strong {
-  font-weight: 600;
-  color: var(--color-foreground);
-}
-.leo-markdown em {
-  font-style: italic;
-}
-.leo-markdown code {
-  background: var(--color-ink-2);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 0.05rem 0.3rem;
-  font-family: var(--font-mono);
-  font-size: 0.85em;
+    radial-gradient(60% 60% at 80% 0%, rgba(255, 138, 61, 0.18) 0%, transparent 70%),
+    radial-gradient(50% 50% at 0% 20%, rgba(255, 106, 0, 0.10) 0%, transparent 70%);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "./toast";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -168,7 +170,7 @@ export function InvoiceEditor({
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error(err);
-      alert("Could not save the invoice. Please try again.");
+      toast("Could not save the invoice. Please try again.", "error");
     } finally {
       setSaving(false);
     }
@@ -195,7 +197,7 @@ export function InvoiceEditor({
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert("Could not generate the PDF. Please try again.");
+      toast("Could not generate the PDF. Please try again.", "error");
     } finally {
       setDownloading(false);
     }
@@ -392,7 +394,7 @@ export function InvoiceEditor({
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-ink/30 p-4">
+        <div className="rounded-lg border border-border bg-surface-2 p-4">
           <Toggle
             label="Recurring — auto-generate &amp; email a copy every month"
             checked={recurring}
@@ -408,7 +410,7 @@ export function InvoiceEditor({
           value={notes}
           onChange={setNotes}
           rows={3}
-          placeholder="e.g. Payment via e-transfer to info@ladigital.ca. Thank you!"
+          placeholder="e.g. Payment via e-transfer to support@ladigital.ca. Thank you!"
         />
       </Card>
     </div>

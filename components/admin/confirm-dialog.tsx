@@ -68,7 +68,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             transition={{ duration: 0.15 }}
           >
             <div
-              className="absolute inset-0 bg-ink/70 backdrop-blur-sm"
+              className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
               onClick={() => finish(false)}
               aria-hidden
             />

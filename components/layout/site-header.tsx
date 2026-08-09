@@ -22,8 +22,9 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { href: "/", label: "Home", exact: true },
-  { href: "/services", label: "Services" },
-  { href: "/#process", label: "Process", sectionId: "process" },
+  { href: "/#websites", label: "Websites", sectionId: "websites" },
+  { href: "/#services", label: "Services", sectionId: "services" },
+  { href: "/#omnivo", label: "Omnivo AI", sectionId: "omnivo" },
   { href: "/#contact", label: "Contact", sectionId: "contact" },
 ];
 
@@ -48,10 +49,10 @@ export function SiteHeader() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrollY } = useScroll();
-  const bgOpacity = useTransform(scrollY, [0, 80], [0, 0.85]);
-  const bg = useMotionTemplate`rgba(7, 8, 10, ${bgOpacity})`;
+  const bgOpacity = useTransform(scrollY, [0, 80], [0, 0.9]);
+  const bg = useMotionTemplate`rgba(255, 255, 255, ${bgOpacity})`;
   const borderOpacity = useTransform(scrollY, [0, 80], [0, 1]);
-  const borderColor = useMotionTemplate`rgba(255, 255, 255, ${useTransform(borderOpacity, (v) => v * 0.08)})`;
+  const borderColor = useMotionTemplate`rgba(20, 24, 31, ${useTransform(borderOpacity, (v) => v * 0.1)})`;
   const blur = useTransform(scrollY, [0, 80], [0, 12]);
   const backdropFilter = useMotionTemplate`blur(${blur}px)`;
 
@@ -81,7 +82,7 @@ export function SiteHeader() {
             <div className="hidden items-center gap-3 md:flex">
               <SocialLinks size="sm" />
               <Button href="/book" variant="primary" size="sm">
-                Start a project
+                Get your $49 website
               </Button>
             </div>
 

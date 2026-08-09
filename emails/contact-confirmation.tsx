@@ -119,7 +119,7 @@ export default function ContactConfirmation({ data }: Props) {
 
       <Section style={{ marginTop: 28 }}>
         <Button
-          href={`${siteConfig.seo.siteUrl}/services`}
+          href={`${siteConfig.seo.siteUrl}/#services`}
           style={{
             backgroundColor: "transparent",
             color: EMAIL_COLORS.fg,

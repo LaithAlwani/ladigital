@@ -25,10 +25,8 @@ import {
   updateProject,
 } from "@/app/actions/admin-projects";
 import { cn } from "@/lib/cn";
-
-const inputBase =
-  "w-full rounded-lg border border-border bg-ink/40 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-2 transition-colors focus:border-brand-orange focus:bg-ink/60 focus:outline-none";
-const labelBase = "text-xs font-medium uppercase tracking-[0.14em] text-muted";
+import { inputBase, labelBase } from "./admin-fields";
+import { toast } from "./toast";
 
 type LocalImage = { storageId: string; alt?: string; url: string | null };
 
@@ -57,7 +55,7 @@ export function ProjectEditor({ project }: { project: ResolvedProject }) {
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert("Could not update publish state. Please try again.");
+      toast("Could not update publish state. Please try again.", "error");
     } finally {
       setPublishing(false);
     }
@@ -103,7 +101,7 @@ export function ProjectEditor({ project }: { project: ResolvedProject }) {
       await persistImages(next, coverIndex);
     } catch (err) {
       console.error(err);
-      alert("Image upload failed. Please try again.");
+      toast("Image upload failed. Please try again.", "error");
     } finally {
       setUploading(false);
       if (fileInput.current) fileInput.current.value = "";
@@ -148,7 +146,7 @@ export function ProjectEditor({ project }: { project: ResolvedProject }) {
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error(err);
-      alert("Could not save. Please try again.");
+      toast("Could not save. Please try again.", "error");
     } finally {
       setSaving(false);
     }
@@ -341,7 +339,7 @@ export function ProjectEditor({ project }: { project: ResolvedProject }) {
                       Cover
                     </span>
                   ) : null}
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-linear-to-t from-ink/90 to-transparent p-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-linear-to-t from-foreground/90 to-transparent p-1.5 opacity-0 transition-opacity group-hover:opacity-100">
                     <IconBtn title="Set as cover" onClick={() => makeCover(i)}>
                       <Star className={cn("h-3.5 w-3.5", i === coverIndex && "fill-current")} />
                     </IconBtn>

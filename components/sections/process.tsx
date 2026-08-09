@@ -29,13 +29,13 @@ export function Process() {
               className="object-cover"
               quality={75}
             />
-            <div aria-hidden className="absolute inset-0 bg-linear-to-tr from-ink/50 via-ink/20 to-transparent" />
+            <div aria-hidden className="absolute inset-0 bg-linear-to-tr from-foreground/25 via-foreground/5 to-transparent" />
           </div>
           <div className="mt-6 lg:sticky lg:top-24">
             <SectionHeading
-              eyebrow="Our process"
+              eyebrow="How it works"
               title="A simple, predictable path from idea to launch."
-              description="No mystery, no surprise invoices. Every project follows the same six steps."
+              description="No mystery, no surprise invoices — just a few simple steps to get you online for $49/month."
             />
           </div>
         </motion.div>

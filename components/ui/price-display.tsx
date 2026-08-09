@@ -5,7 +5,7 @@ import { useInView, useReducedMotion } from "motion/react";
 import { formatCAD } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-type Unit = "one-time" | "per-month" | "per-project";
+type Unit = "one-time" | "per-month" | "per-project" | "per-page";
 
 type Props = {
   price: number;
@@ -69,10 +69,11 @@ export function PriceDisplay({
     );
   }
 
-  // Suffix on the main price: only show "/mo" when it's a pure monthly retainer
-  // (no separate setup). Setup-only and setup+monthly packages render no
+  // Suffix on the main price: "/mo" for a pure monthly retainer, "/page" for
+  // per-page pricing (SEO). Setup-only and setup+monthly packages render no
   // suffix — the monthly is shown on its own line below.
-  const mainSuffix = !monthlyPrice && unit === "per-month" ? "/mo" : null;
+  const unitSuffix = unit === "per-month" ? "/mo" : unit === "per-page" ? "/page" : null;
+  const mainSuffix = monthlyPrice ? null : unitSuffix;
 
   return (
     <div ref={ref} className={cn("flex flex-col gap-1.5", className)}>
@@ -119,34 +120,5 @@ export function PriceDisplay({
         </div>
       ) : null}
     </div>
-  );
-}
-
-export function StartingAt({
-  price,
-  unit,
-  className,
-}: {
-  price: number;
-  unit?: Unit;
-  className?: string;
-}) {
-  if (price === 0) {
-    return (
-      <span className={cn("font-display text-xl font-semibold text-foreground", className)}>
-        Custom quote
-      </span>
-    );
-  }
-  const suffix = unit === "per-month" ? "/mo" : "";
-  return (
-    <span className={cn("inline-flex items-baseline gap-1.5", className)}>
-      <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">From</span>
-      <span className="font-display text-xl font-semibold text-foreground tabular-nums">
-        {formatCAD(price)}
-        {suffix}
-      </span>
-      <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-2">CAD</span>
-    </span>
   );
 }

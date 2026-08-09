@@ -11,8 +11,8 @@ async function ensureAdmin() {
 }
 
 function bustPublic() {
+  // Pricing now lives on the home page (the /services route was removed).
   revalidatePath("/");
-  revalidatePath("/services");
 }
 
 export type SettingsPayload = {

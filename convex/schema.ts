@@ -24,6 +24,7 @@ export const priceUnit = v.union(
   v.literal("one-time"),
   v.literal("per-month"),
   v.literal("per-project"),
+  v.literal("per-page"),
 );
 
 export const invoiceStatus = v.union(
@@ -89,7 +90,7 @@ export default defineSchema({
   }).index("by_key", ["key"]),
 
   // Editable plans/packages, grouped by the static service category id
-  // ("plans" | "growth-services" | "addons"). When a category has rows here
+  // ("plans" | "addons"). When a category has rows here
   // they are the source of truth; otherwise the public site falls back to the
   // static packages in lib/site-config.ts.
   plans: defineTable({

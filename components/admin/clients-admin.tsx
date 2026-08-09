@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "./toast";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Save, Check, Loader2, Users } from "lucide-react";
@@ -82,7 +84,7 @@ function ClientCard({ client }: { client: Client }) {
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error(err);
-      alert("Could not save the client.");
+      toast("Could not save the client.", "error");
     } finally {
       setSaving(false);
     }

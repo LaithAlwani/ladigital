@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "./toast";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Plus, Loader2 } from "lucide-react";
@@ -80,7 +82,7 @@ export function AvailabilityEditor({
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error(err);
-      alert("Could not save. Please try again.");
+      toast("Could not save. Please try again.", "error");
     } finally {
       setSaving(false);
     }
@@ -195,7 +197,7 @@ export function AvailabilityEditor({
         {blackouts.length > 0 ? (
           <div className="mt-2 flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
             {blackouts.map((b) => (
-              <div key={b._id} className="flex items-center justify-between gap-3 bg-ink/30 px-4 py-2.5">
+              <div key={b._id} className="flex items-center justify-between gap-3 bg-surface-2 px-4 py-2.5">
                 <div className="text-sm text-foreground">
                   {b.startDate === b.endDate ? b.startDate : `${b.startDate} → ${b.endDate}`}
                   {b.reason ? <span className="ml-2 text-muted-2">· {b.reason}</span> : null}

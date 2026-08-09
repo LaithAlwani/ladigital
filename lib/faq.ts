@@ -1,12 +1,11 @@
 /**
  * Canonical FAQ content. Lives in code so it stays in sync with `siteConfig`,
- * and so the FAQPage JSON-LD on `/services` and the rendered <Faq /> section
+ * and so the FAQPage JSON-LD on the home page and the rendered <Faq /> section
  * are always identical (Google penalizes mismatches between visible text and
  * structured data).
  *
- * Keep answers tight (1–2 short sentences). Reference real plan names and
- * the $499 setup detail so the rich snippet reads as a real answer, not
- * marketing fluff.
+ * Keep answers tight (1–2 short sentences), plain-spoken, and reassuring —
+ * these sell affordability without sounding "cheap".
  */
 
 export type FaqItem = {
@@ -16,53 +15,58 @@ export type FaqItem = {
 
 export const faqItems: FaqItem[] = [
   {
-    question: "What is LA Digital, and how is it different from hiring a web developer?",
+    question: "How can a professional website be only $49/month?",
     answer:
-      "LA Digital is a subscription business platform, not a one-time project. You pick a monthly plan — Presence, Growth, or Scale — and we run your website, hosting, maintenance, support, and (optionally) marketing as an ongoing partnership. No surprise invoices, no scope creep.",
+      "We build on efficient, proven systems and host your site ourselves, so there's no big upfront agency bill. You get a custom, mobile-friendly website for one low monthly price. Larger fully-custom builds are a separate quote.",
   },
   {
-    question: "Is the setup fee really $0 with an annual commitment?",
+    question: "Is a $49 website actually any good?",
     answer:
-      "Yes. The standard $499 onboarding fee is waived when you sign a 12-month agreement on any Platform Plan. Month-to-month customers pay the one-time $499 setup.",
+      "Yes. It's a custom, mobile-friendly design — not a generic template dump — that's fast, secure, and built to win trust. Affordable doesn't mean amateur.",
   },
   {
-    question: "What's the difference between Presence, Growth, and Scale?",
+    question: "What's included for $49/month?",
     answer:
-      "Presence ($199/mo) is a professional website with hosting, support, and basic SEO. Growth ($399/mo) adds customer accounts, online booking, payments, and a dashboard. Scale ($799/mo) layers in an admin dashboard, CRM, AI assistant, automations, and marketing infrastructure.",
+      "Custom design, hosting, SSL security, ongoing updates and maintenance, contact forms, Google setup, basic SEO to get you found, and support from a real person. Everything to go live and stay looked-after.",
   },
   {
-    question: "Do you offer SEO, social media, and paid ads?",
+    question: "Can customers book appointments on my website?",
     answer:
-      "Yes — those are our Growth Services, billed separately from the Platform Plans. SEO starts at $500/mo, Social Media at $600/mo, and Paid Advertising at $800/mo (ad spend paid separately by the client).",
+      "Yes — our Website + Booking plan ($99/month) adds a full online booking and calendar system with automated email and SMS reminders. Want AI to answer questions and handle bookings by chat? That's Omnivo AI, which also works with your existing booking system.",
   },
   {
-    question: "Can I get a mobile app or desktop app for my business?",
+    question: "Do I own my website?",
     answer:
-      "Yes, as Platform Add-ons. The Mobile App add-on ($199/mo) ships an iOS and Android app for your existing platform. The Desktop App add-on ($299/mo) covers Windows and macOS for in-house staff and offline workflows.",
+      "You own your content and your domain. If you ever decide to leave, we help you take what's yours — no hostage situations.",
+  },
+  {
+    question: "How does per-page SEO work?",
+    answer:
+      "Instead of a big monthly retainer, we optimize your site one page at a time, so you only pay for the pages you want to rank. We'll confirm your page count and the rate on a quick call.",
+  },
+  {
+    question: "Can you build a mobile app, desktop app, or custom software?",
+    answer:
+      "Yes — those are custom builds, quoted to fit your needs. Many businesses start with a website and add an app or custom software as they grow.",
+  },
+  {
+    question: "Is Omnivo AI part of my website?",
+    answer:
+      "No — Omnivo AI is a separate product for AI automation (lead capture, answering customer questions, bookings, and follow-ups). You can add it to any website; it lives at omnivoai.ca.",
   },
   {
     question: "How long does it take to launch?",
     answer:
-      "Most platforms go live within 2–4 weeks of the discovery call, depending on scope and how quickly we receive your content. We work in weekly check-ins with a live preview link so there are no surprises at launch.",
+      "Most websites go live within a couple of weeks once we have your content. We keep it simple, with a live preview so there are no surprises.",
   },
   {
-    question: "What if I want to cancel my subscription?",
+    question: "Do you work with businesses outside Ottawa?",
     answer:
-      "Month-to-month plans can cancel at any time. Annual plans run for the full 12 months; after that, they convert to month-to-month and can be cancelled with 30 days' notice. Your data is yours — we hand over what you need on the way out.",
+      "Yes. We're based in Ottawa, Ontario but work with small businesses across Canada — entirely remotely, over calls, shared previews, and email.",
   },
   {
-    question: "Do you work with clients outside Ottawa?",
+    question: "Can I cancel?",
     answer:
-      "Yes. We're based in Ottawa, Ontario but onboard and support clients across Canada (and beyond) entirely remotely. All collaboration happens via video calls, shared previews, and email — no on-site visits required.",
-  },
-  {
-    question: "Is the AI assistant on the Scale plan trained on my business?",
-    answer:
-      "Yes. The AI assistant is configured with your business information, services, and FAQs so it answers customer questions correctly, captures leads, and helps with support workflows. It improves over time as you add knowledge.",
-  },
-  {
-    question: "What kind of support is included?",
-    answer:
-      "Every plan includes ongoing maintenance, security updates, hosting, and same-day responses during business hours (Mon–Fri, 9am–4pm ET). Higher tiers also include monthly analytics reports, priority support, and small feature updates.",
+      "Yes — the $49/month website is month-to-month and you can cancel anytime. No long lock-in.",
   },
 ];

@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
     // One year — optimized variants are immutable per source hash.
     minimumCacheTTL: 31_536_000,
   },
+  // Old pricing surfaces were folded into the home page during the reposition.
+  // Keep any indexed/inbound links working by sending them to the home anchors.
+  async redirects() {
+    return [
+      { source: "/services", destination: "/#services", permanent: true },
+      { source: "/plans/:slug", destination: "/#websites", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -7,8 +7,8 @@ import { siteConfig } from "@/lib/site-config";
 
 const SITEMAP = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/#process", label: "Process" },
+  { href: "/#websites", label: "Websites" },
+  { href: "/#services", label: "Services" },
   { href: "/#contact", label: "Contact" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Use" },
@@ -25,6 +25,14 @@ export function SiteFooter() {
             <p className="max-w-sm text-sm text-muted">
               {siteConfig.company.description} Built and supported from {siteConfig.contact.city}.
             </p>
+            <a
+              href={siteConfig.omnivo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-foreground hover:text-brand-orange"
+            >
+              Looking for AI automation? Visit {siteConfig.omnivo.name} ↗
+            </a>
             <SocialLinks size="md" />
           </div>
 

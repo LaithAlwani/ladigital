@@ -3,8 +3,13 @@ import { Loader2, Save, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 export const inputBase =
-  "w-full rounded-lg border border-border bg-ink/40 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-2 transition-colors focus:border-brand-orange focus:bg-ink/60 focus:outline-none";
+  "w-full rounded-lg border border-border bg-surface-2 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-2 transition-colors focus:border-brand-orange focus:bg-surface focus:outline-none";
 export const labelBase = "text-xs font-medium uppercase tracking-[0.14em] text-muted";
+
+// Canonical admin primary button — was copy-pasted inline across editors; use
+// this const so restyling the admin's main action happens in one place.
+export const primaryButton =
+  "inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60";
 
 export function TextField({
   label,
@@ -157,12 +162,7 @@ export function SaveButton({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={saving}
-      className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow disabled:opacity-60"
-    >
+    <button type="button" onClick={onClick} disabled={saving} className={primaryButton}>
       {saving ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : saved ? (
@@ -177,7 +177,7 @@ export function SaveButton({
 
 export function Card({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-4 rounded-card border border-border bg-surface/40 p-6">
+    <div className="flex flex-col gap-4 rounded-card border border-border bg-surface p-6 shadow-card">
       {title ? (
         <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
       ) : null}

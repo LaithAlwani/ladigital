@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "./toast";
+
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Check } from "lucide-react";
@@ -16,7 +18,7 @@ import {
 } from "./admin-fields";
 import { cn } from "@/lib/cn";
 
-type Unit = "one-time" | "per-month" | "per-project";
+type Unit = "one-time" | "per-month" | "per-project" | "per-page";
 
 type PlanRow = {
   categoryId: string;
@@ -159,7 +161,7 @@ export function PlansEditor({ plans }: { plans: PlanRow[] }) {
       setTimeout(() => setSavedCat(null), 2500);
     } catch (err) {
       console.error(err);
-      alert("Could not save plans. Please try again.");
+      toast("Could not save plans. Please try again.", "error");
     } finally {
       setSavingCat(null);
     }
@@ -197,7 +199,7 @@ export function PlansEditor({ plans }: { plans: PlanRow[] }) {
 
             <div className="flex flex-col gap-4">
               {forms.map((f, i) => (
-                <div key={i} className="rounded-xl border border-border bg-ink/30 p-4">
+                <div key={i} className="rounded-xl border border-border bg-surface-2 p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-xs font-medium uppercase tracking-[0.14em] text-muted-2">
                       Plan {i + 1}

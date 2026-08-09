@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useQuery } from "convex/react";
 import { motion, useReducedMotion } from "motion/react";
-import { Loader2, CalendarX2 } from "lucide-react";
+import { Loader2, CalendarX2, ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import type { DaySlots } from "@/convex/slots";
 import { cn } from "@/lib/cn";
@@ -30,6 +30,10 @@ export function AvailabilityPicker({ selectedStart, onSelectStart }: Props) {
   const reduced = useReducedMotion();
 
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+  const railRef = React.useRef<HTMLDivElement>(null);
+  const scrollRail = (dir: 1 | -1) => {
+    railRef.current?.scrollBy({ left: dir * 240, behavior: "smooth" });
+  };
 
   // Default to the first day that has open slots once data arrives.
   React.useEffect(() => {
@@ -75,8 +79,22 @@ export function AvailabilityPicker({ selectedStart, onSelectStart }: Props) {
         <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted">
           Pick a day
         </p>
-        <div className="-mx-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2 [scrollbar-width:thin]">
-          {days.map((d) => {
+        <div className="flex items-center gap-2">
+          {/* Desktop scroll arrows — the scrollbar itself is hidden below. */}
+          <button
+            type="button"
+            onClick={() => scrollRail(-1)}
+            aria-label="Previous days"
+            className="hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-surface text-muted transition-colors hover:border-brand-orange hover:text-brand-orange md:grid"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          <div
+            ref={railRef}
+            className="flex flex-1 snap-x snap-mandatory gap-2.5 overflow-x-auto px-0.5 pb-2 scrollbar-none"
+          >
+            {days.map((d) => {
             const { weekday, day, month } = dayLabels(d.date);
             const isActive = d.date === activeDate;
             const isFull = d.slots.length === 0;
@@ -120,6 +138,16 @@ export function AvailabilityPicker({ selectedStart, onSelectStart }: Props) {
               </button>
             );
           })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollRail(1)}
+            aria-label="Next days"
+            className="hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-surface text-muted transition-colors hover:border-brand-orange hover:text-brand-orange md:grid"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
       </div>
 

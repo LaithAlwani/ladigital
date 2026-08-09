@@ -7,41 +7,6 @@ export const BUDGET_VALUES = [
   "$1,000+/mo",
 ] as const;
 
-// ----------------------------------------------------------------------------
-// Leo — AI chat concierge.
-// ----------------------------------------------------------------------------
-
-const leoRole = z.enum(["user", "assistant"]);
-
-const leoTurn = z.object({
-  role: leoRole,
-  // 8000 chars ≈ 2000 tokens — comfortably above the route's max_tokens=1024
-  // so a long assistant reply can be replayed back as history next turn.
-  content: z.string().min(1).max(8000),
-});
-
-export const leoMessageSchema = z.object({
-  // Full conversation history. The client trims to the most recent ~12 turns
-  // before sending — the server enforces a hard cap to bound abuse.
-  messages: z.array(leoTurn).min(1).max(20),
-  // Honeypot — bots fill this, humans don't.
-  website: z.string().max(0).optional().or(z.literal("")),
-});
-
-export type LeoMessageInput = z.infer<typeof leoMessageSchema>;
-export type LeoTurn = z.infer<typeof leoTurn>;
-
-export const leoLeadSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-  name: z.string().max(80).optional().or(z.literal("")),
-  language: z.enum(["en", "fr"]).optional(),
-  // Final transcript so the team has context. Capped to bound the email size.
-  conversation: z.array(leoTurn).max(40),
-  website: z.string().max(0).optional().or(z.literal("")),
-});
-
-export type LeoLeadInput = z.infer<typeof leoLeadSchema>;
-
 export const contactSchema = z.object({
   name: z.string().min(2, "Please enter your name").max(80),
   email: z.string().email("Enter a valid email"),

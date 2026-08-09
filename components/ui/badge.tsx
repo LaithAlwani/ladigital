@@ -10,7 +10,7 @@ export function Badge({ className, variant = "default", children, ...rest }: Pro
       className={cn(
         "inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
         variant === "orange"
-          ? "bg-brand-orange/15 text-brand-orange ring-1 ring-brand-orange/40"
+          ? "bg-brand-orange text-white shadow-glow-soft"
           : "bg-surface-2 text-muted ring-1 ring-border",
         className,
       )}

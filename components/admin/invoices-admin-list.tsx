@@ -111,7 +111,7 @@ export function InvoicesAdminList({
             <select
               value={newClientId}
               onChange={(e) => setNewClientId(e.target.value)}
-              className="h-11 rounded-lg border border-border bg-ink/40 px-3 text-sm text-foreground focus:border-brand-orange focus:outline-none"
+              className="h-11 rounded-lg border border-border bg-surface-2 px-3 text-sm text-foreground focus:border-brand-orange focus:outline-none"
             >
               <option value="">No client (blank)</option>
               {clients.map((c) => (

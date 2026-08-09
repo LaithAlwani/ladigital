@@ -105,7 +105,7 @@ export function websiteLd() {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${baseUrl()}/services?q={search_term_string}`,
+        urlTemplate: `${baseUrl()}/?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },
@@ -174,10 +174,16 @@ export function breadcrumbLd(items: Crumb[]) {
   };
 }
 
-export function faqPageLd(items: Array<{ question: string; answer: string }>) {
+export function faqPageLd(
+  items: Array<{ question: string; answer: string }>,
+  updated?: string,
+) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    // Freshness signals help AI answer engines (ChatGPT/Claude/Gemini) trust and
+    // cite the content — most AI citations come from recently-updated pages.
+    ...(updated ? { datePublished: updated, dateModified: updated } : {}),
     mainEntity: items.map((qa) => ({
       "@type": "Question",
       name: qa.question,

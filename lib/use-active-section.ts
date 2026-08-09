@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 
 /**
- * Track which of the given DOM section ids is currently most prominent in
- * the viewport. Returns the id of the active section, or null if none of the
- * sections are in the active band.
+ * Track which of the given DOM section ids the reader is currently in.
  *
- * The "active band" is the middle ~20% of the viewport (top 30% and bottom
- * 50% are excluded via rootMargin), which matches what feels like the
- * "currently reading" region without flickering as users scroll.
+ * Uses scroll position — the active section is the last one whose top has
+ * crossed a reference line ~35% down the viewport — rather than intersection
+ * ratios. An IntersectionObserver "active band" leaves gaps between sections
+ * where nothing is active, which made the nav blink back to Home mid-scroll.
+ * With this approach the active id only becomes null when you're above the
+ * first section (in the hero), so Home lights up there and nowhere else.
  */
 export function useActiveSection(ids: string[], enabled = true): string | null {
   const key = ids.join(",");
@@ -20,42 +21,42 @@ export function useActiveSection(ids: string[], enabled = true): string | null {
       setActive(null);
       return;
     }
-    if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
 
-    const elements = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
+    let raf = 0;
 
-    if (elements.length === 0) {
-      setActive(null);
-      return;
-    }
+    const compute = () => {
+      raf = 0;
+      const line = window.innerHeight * 0.35;
+      const els = ids
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null)
+        .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
 
-    const ratios = new Map<string, number>();
+      // The active section is the last one whose top has scrolled above the
+      // reference line. In the gap between two sections that stays the earlier
+      // one; above the first section it's null (hero → Home).
+      let current: string | null = null;
+      for (const el of els) {
+        if (el.getBoundingClientRect().top <= line) current = el.id;
+        else break;
+      }
+      setActive(current);
+    };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) ratios.set(e.target.id, e.intersectionRatio);
-        let best: string | null = null;
-        let bestRatio = 0;
-        for (const [id, ratio] of ratios) {
-          if (ratio > bestRatio) {
-            best = id;
-            bestRatio = ratio;
-          }
-        }
-        setActive(best);
-      },
-      {
-        rootMargin: "-30% 0px -50% 0px",
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-      },
-    );
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(compute);
+    };
 
-    for (const el of elements) observer.observe(el);
-    return () => observer.disconnect();
+    compute();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
     // key represents the array contents; intentional to avoid array identity issues
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, enabled]);

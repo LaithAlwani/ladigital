@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { LeoWidget } from "@/components/leo/leo-widget";
 import { JsonLd } from "@/components/seo/json-ld";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
@@ -16,6 +15,9 @@ import { resolveSocials } from "@/lib/socials";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+// Warm, characterful display face for headings — the "approachable, not an
+// intimidating agency" voice of the reposition.
+const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.seo.siteUrl),
@@ -85,7 +87,7 @@ export default async function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-ink text-foreground">
@@ -98,7 +100,6 @@ export default async function RootLayout({
             <main className="flex-1">{children}</main>
             <PublicChrome>
               <SiteFooter />
-              <LeoWidget />
             </PublicChrome>
             <GoogleAnalytics />
           </SocialsProvider>
