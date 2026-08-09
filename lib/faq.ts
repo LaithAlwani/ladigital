@@ -32,7 +32,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "Can customers book appointments on my website?",
     answer:
-      "Yes — our Website + Booking plan ($99/month) adds a full online booking and calendar system with automated email and SMS reminders. Want AI to answer questions and handle bookings by chat? That's Omnivo AI, which also works with your existing booking system.",
+      "Yes — our Website + Booking plan ($99/month) adds a full online booking and calendar system, and automated email and SMS reminders come built in. Want an AI that answers questions and captures leads on top? That's Omnivo AI, which connects to your booking system.",
   },
   {
     question: "Do I own my website?",
@@ -52,7 +52,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "Is Omnivo AI part of my website?",
     answer:
-      "No — Omnivo AI is a separate product for AI automation (lead capture, answering customer questions, bookings, and follow-ups). You can add it to any website; it lives at omnivoai.ca.",
+      "No — Omnivo AI is a separate product. It answers customer questions and captures leads 24/7, and connects to the booking and reminder tools you already use rather than replacing them. Add it to any website; it lives at omnivoai.ca.",
   },
   {
     question: "How long does it take to launch?",

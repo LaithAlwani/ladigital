@@ -17,8 +17,9 @@ export function OmnivoCta() {
               Want to automate your business?
             </h3>
             <p className="mt-2.5 text-sm text-muted md:text-base">
-              {name} handles lead capture, customer questions, bookings, and follow-ups —
-              automatically, and it works with your existing booking system. Try it on your site.
+              {name} answers customer questions and captures leads 24/7 — and connects to the
+              booking and reminder tools you already use, instead of replacing them. Try it on your
+              site.
             </p>
           </div>
           <a

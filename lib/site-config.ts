@@ -243,7 +243,7 @@ export const siteConfig: SiteConfig = {
   omnivo: {
     name: "Omnivo AI",
     tagline:
-      "AI automation for your business — lead capture, customer questions, bookings, and follow-ups, on autopilot.",
+      "AI automation for your business — answer customer questions and capture leads 24/7, connected to the booking and reminder tools you already use.",
     url: "https://omnivoai.ca",
   },
 };
