@@ -142,6 +142,8 @@ export default defineSchema({
     manageToken: v.string(),
     source: v.optional(v.string()),
     createdAt: v.number(),
+    // Set once the pre-appointment reminder email has been sent (dedupe).
+    reminderSentAt: v.optional(v.number()),
   })
     .index("by_start", ["startUtc"])
     .index("by_token", ["manageToken"]),

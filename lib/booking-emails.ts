@@ -70,3 +70,37 @@ export async function sendBookingEmails(opts: {
     console.error("[booking] email send failed (non-blocking):", err);
   }
 }
+
+/** Send the client-only pre-appointment reminder email. Returns send status so
+ *  the cron only marks a booking reminded when the email actually went out. */
+export async function sendBookingReminderEmail(opts: {
+  name: string;
+  email: string;
+  whenText: string;
+  meetLink?: string;
+  manageUrl?: string;
+}): Promise<{ ok: boolean; skipped?: boolean }> {
+  try {
+    const html = await render(
+      BookingEmail({
+        kind: "reminder",
+        role: "client",
+        name: opts.name,
+        whenText: opts.whenText,
+        meetLink: opts.meetLink,
+        manageUrl: opts.manageUrl,
+      }),
+    );
+    const r = await sendMail({
+      to: opts.email,
+      replyTo: siteConfig.contact.email,
+      subject: `Reminder: your discovery call — ${siteConfig.company.name}`,
+      html,
+    });
+    if (!r.ok) return { ok: false };
+    return { ok: true, skipped: r.skipped };
+  } catch (err) {
+    console.error("[booking] reminder email failed:", err);
+    return { ok: false };
+  }
+}

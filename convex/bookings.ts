@@ -2,12 +2,14 @@ import { v } from "convex/values";
 import {
   action,
   query,
+  mutation,
   internalQuery,
   internalMutation,
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { verifyOpen } from "./slots";
+import { assertAdmin } from "./lib/requireAdmin";
 
 // ----------------------------------------------------------------------------
 // Bookings — data layer. Slot validity is re-checked inside each mutation's
@@ -160,6 +162,35 @@ export const listRange = query({
       .query("bookings")
       .withIndex("by_start", (q) => q.gte("startUtc", args.fromUtc).lte("startUtc", args.toUtc))
       .collect();
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Reminders — the Vercel cron (app/api/cron/booking-reminders) reads bookings
+// due for a reminder, emails each client via the Next mailer, then marks them
+// reminded. Admin-key protected (shared ADMIN_WRITE_KEY), like the invoices cron.
+// ---------------------------------------------------------------------------
+
+/** Active, upcoming bookings within `withinMs` that haven't been reminded yet. */
+export const dueForReminder = query({
+  args: { adminKey: v.string(), withinMs: v.number() },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    const now = Date.now();
+    const rows = await ctx.db
+      .query("bookings")
+      .withIndex("by_start", (q) => q.gte("startUtc", now).lte("startUtc", now + args.withinMs))
+      .collect();
+    return rows.filter((b) => b.reminderSentAt === undefined && b.status !== "cancelled");
+  },
+});
+
+/** Mark a booking's reminder as sent so it isn't reminded again. */
+export const markReminded = mutation({
+  args: { adminKey: v.string(), id: v.id("bookings") },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    await ctx.db.patch(args.id, { reminderSentAt: Date.now() });
   },
 });
 

@@ -3,7 +3,7 @@ import * as React from "react";
 import { siteConfig } from "@/lib/site-config";
 import { EmailLayout, EMAIL_COLORS } from "./components/email-layout";
 
-export type BookingEmailKind = "confirmed" | "rescheduled" | "cancelled";
+export type BookingEmailKind = "confirmed" | "rescheduled" | "cancelled" | "reminder";
 export type BookingEmailRole = "client" | "owner";
 
 export type BookingEmailProps = {
@@ -58,7 +58,13 @@ const metaLabel: React.CSSProperties = {
 function copyFor(kind: BookingEmailKind, role: BookingEmailRole, first: string) {
   if (role === "owner") {
     const verb =
-      kind === "confirmed" ? "New booking" : kind === "rescheduled" ? "Booking moved" : "Booking cancelled";
+      kind === "confirmed"
+        ? "New booking"
+        : kind === "rescheduled"
+          ? "Booking moved"
+          : kind === "reminder"
+            ? "Upcoming call"
+            : "Booking cancelled";
     return {
       eyebrow: verb,
       heading: `${verb} — ${first}`,
@@ -79,6 +85,12 @@ function copyFor(kind: BookingEmailKind, role: BookingEmailRole, first: string) 
       eyebrow: "Booking updated",
       heading: `New time confirmed, ${first}.`,
       lede: "Your discovery call has been moved. Here are the updated details.",
+    };
+  if (kind === "reminder")
+    return {
+      eyebrow: "Reminder",
+      heading: `Your call is coming up, ${first}.`,
+      lede: "A quick reminder about your upcoming discovery call. Here are the details — talk soon.",
     };
   return {
     eyebrow: "Booking cancelled",
