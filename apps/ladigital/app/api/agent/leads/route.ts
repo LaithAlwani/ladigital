@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
 
 // POST /api/agent/leads — capture a lead into the CRM (and optionally open a
-// deal). The agent is authorized by OMNIVO_API_KEY; the admin write key stays
+// deal). The agent is authorized by AGENT_API_KEY; the admin write key stays
 // server-side and is never exposed to the caller.
 export async function POST(req: Request) {
-  const auth = authorizeAgent(req, process.env.OMNIVO_API_KEY);
+  const auth = authorizeAgent(req, process.env.AGENT_API_KEY);
   if (!auth.ok) return auth.response;
 
   let body: Record<string, unknown>;

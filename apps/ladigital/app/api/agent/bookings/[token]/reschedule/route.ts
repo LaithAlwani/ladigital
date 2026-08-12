@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 // POST /api/agent/bookings/{token}/reschedule — body: { startUtc }. Reuses the
 // site's reschedule flow (slot re-check + Google patch + email).
 export async function POST(req: Request, { params }: { params: Promise<{ token: string }> }) {
-  const auth = authorizeAgent(req, process.env.OMNIVO_API_KEY);
+  const auth = authorizeAgent(req, process.env.AGENT_API_KEY);
   if (!auth.ok) return auth.response;
   const { token } = await params;
 

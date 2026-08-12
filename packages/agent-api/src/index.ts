@@ -4,7 +4,7 @@
 // book/reschedule/cancel appointments, and capture leads into the CRM.
 //
 // Each client app exposes these as Next.js routes under /api/agent on its OWN
-// domain, guarded by that client's own OMNIVO_API_KEY. "Plug in URL + key" is
+// domain, guarded by that client's own AGENT_API_KEY. "Plug in URL + key" is
 // all the integration needs: the URL is the client's site, the key is the env
 // var below.
 // ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ export function safeEqual(a: string, b: string): boolean {
 export type AgentAuth = { ok: true } | { ok: false; response: Response };
 
 /**
- * Authorize an incoming agent request against the client's OMNIVO_API_KEY.
+ * Authorize an incoming agent request against the client's AGENT_API_KEY.
  * Returns a ready-to-return 401/503 Response on failure so route handlers stay
  * one-liners: `const a = authorizeAgent(req, key); if (!a.ok) return a.response;`
  */

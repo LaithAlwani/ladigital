@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // POST /api/agent/bookings — book an appointment through the same flow as the
 // website (transactional slot re-check + Google event + confirmation emails).
 export async function POST(req: Request) {
-  const auth = authorizeAgent(req, process.env.OMNIVO_API_KEY);
+  const auth = authorizeAgent(req, process.env.AGENT_API_KEY);
   if (!auth.ok) return auth.response;
 
   let body: Record<string, unknown>;

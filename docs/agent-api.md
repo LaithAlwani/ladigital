@@ -8,7 +8,7 @@ those two values.
 
 - **Base URL:** the client's own domain — `https://<client-domain>/api/agent`
   (e.g. `https://ladigital.ca/api/agent`).
-- **Auth:** `Authorization: Bearer <OMNIVO_API_KEY>` (or `x-api-key: <key>`).
+- **Auth:** `Authorization: Bearer <AGENT_API_KEY>` (or `x-api-key: <key>`).
 - **Times:** epoch milliseconds, UTC.
 - Reuses the site's real booking flow, so Google Calendar events + confirmation
   emails fire exactly as they do on the website. Lead capture writes to the CRM.
@@ -18,17 +18,17 @@ those two values.
 1. **Generate a key** and set it on the client's deployment (Vercel env + local):
 
    ```bash
-   openssl rand -hex 32          # -> paste as OMNIVO_API_KEY
+   openssl rand -hex 32          # -> paste as AGENT_API_KEY
    ```
 
-   Set `OMNIVO_API_KEY` in the client's Vercel project (and `.env.local`). No
+   Set `AGENT_API_KEY` in the client's Vercel project (and `.env.local`). No
    code changes — the routes read this env var.
 
 2. **In Omnivo**, add this client/provider with:
    - URL `https://<client-domain>/api/agent`
    - Key = the value you generated
 
-   That's it. If a client doesn't want Omnivo, leave `OMNIVO_API_KEY` unset and
+   That's it. If a client doesn't want Omnivo, leave `AGENT_API_KEY` unset and
    every endpoint returns `503 not configured`.
 
 > The key only unlocks these agent endpoints. The admin write key that the

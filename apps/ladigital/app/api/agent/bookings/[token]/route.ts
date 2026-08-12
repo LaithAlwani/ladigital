@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // GET /api/agent/bookings/{token} — look up a booking by its manageToken.
 export async function GET(req: Request, { params }: { params: Promise<{ token: string }> }) {
-  const auth = authorizeAgent(req, process.env.OMNIVO_API_KEY);
+  const auth = authorizeAgent(req, process.env.AGENT_API_KEY);
   if (!auth.ok) return auth.response;
   const { token } = await params;
   const b = await fetchQuery(api.bookings.getByToken, { token });
