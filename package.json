@@ -11,6 +11,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "create-client": "node scripts/create-client.mjs",
     "ladigital": "npm run dev -w la-digital",
     "build:ladigital": "npm run build -w la-digital",
     "convex": "npm exec -w la-digital -- convex",
