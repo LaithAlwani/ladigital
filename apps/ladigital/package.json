@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@ladigital/admin-kit": "*",
+    "@ladigital/email": "*",
     "@ladigital/theme": "*",
     "@ladigital/ui": "*",
     "@react-email/components": "^1.0.12",
