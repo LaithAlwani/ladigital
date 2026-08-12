@@ -14,7 +14,6 @@ const SERVICES: Svc[] = [
   { icon: "Smartphone", title: "Custom Mobile App", price: "Custom quote", body: "iOS & Android apps for your business, built and maintained by us." },
   { icon: "Server", title: "Custom Desktop App", price: "Custom quote", body: "Windows & macOS apps for your team and offline workflows." },
   { icon: "Layers", title: "Custom Software", price: "Custom quote", body: "Bespoke software built around exactly how you work." },
-  { icon: "Globe", title: "Hosting & Maintenance", price: "Included", body: "Comes with every $49 website — or we'll host & maintain a site you already have." },
 ];
 
 // The cross-sell grid: custom software/apps and hosting. Every card leads to a
