@@ -13,6 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@ladigital/theme": "*",
+    "@ladigital/ui": "*",
     "@react-email/components": "^1.0.12",
     "clsx": "^2.1.1",
     "convex": "^1.39.1",

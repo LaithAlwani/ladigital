@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Workspace packages ship raw TS/TSX — let Next transpile them.
-  transpilePackages: ["@ladigital/theme"],
+  transpilePackages: ["@ladigital/theme", "@ladigital/ui"],
   images: {
     // AVIF cuts bytes ~30% over WebP on photographic content; Next.js falls
     // back to WebP and then the original automatically for older clients.
