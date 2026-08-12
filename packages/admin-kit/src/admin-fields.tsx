@@ -116,13 +116,15 @@ export function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+          // inline-flex + items-center centers the thumb vertically without a
+          // transform, so the only animated transform is the horizontal flip.
+          "inline-flex h-6 w-11 shrink-0 items-center rounded-full px-1 transition-colors",
           checked ? "bg-brand-orange" : "bg-surface-2",
         )}
       >
         <span
           className={cn(
-            "absolute left-1 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform",
+            "h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
             checked ? "translate-x-5" : "translate-x-0",
           )}
         />

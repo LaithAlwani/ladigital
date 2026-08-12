@@ -118,7 +118,7 @@ export function AvailabilityEditor({
       <Card title="Weekly hours">
         <div className="flex flex-col gap-2">
           {days.map((d) => (
-            <div key={d.weekday} className="flex flex-wrap items-center gap-3">
+            <div key={d.weekday} className="flex min-h-10.5 flex-wrap items-center gap-3">
               <div className="w-32">
                 <Toggle
                   label={DAY_NAMES[d.weekday]}
