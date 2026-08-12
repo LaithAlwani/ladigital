@@ -10,6 +10,7 @@ import {
   Tags,
   Receipt,
   Users,
+  KanbanSquare,
   CalendarClock,
   CalendarCheck,
 } from "lucide-react";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/cn";
 
 const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/crm", label: "Pipeline", icon: KanbanSquare },
   { href: "/admin/projects", label: "Projects", icon: FolderGit2 },
   { href: "/admin/plans", label: "Plans", icon: Layers },
   { href: "/admin/invoices", label: "Invoices", icon: Receipt },

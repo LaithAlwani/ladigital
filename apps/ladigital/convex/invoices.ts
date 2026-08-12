@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query, type QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { invoiceStatus } from "./schema";
+import { invoiceStatus } from "@ladigital/crm/schema";
 import { assertAdmin } from "./lib/requireAdmin";
 
 const DAY = 86_400_000;

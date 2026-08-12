@@ -11,6 +11,7 @@
 import type * as availability from "../availability.js";
 import type * as bookings from "../bookings.js";
 import type * as clients from "../clients.js";
+import type * as crm from "../crm.js";
 import type * as crons from "../crons.js";
 import type * as google from "../google.js";
 import type * as googleBusy from "../googleBusy.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   availability: typeof availability;
   bookings: typeof bookings;
   clients: typeof clients;
+  crm: typeof crm;
   crons: typeof crons;
   google: typeof google;
   googleBusy: typeof googleBusy;
