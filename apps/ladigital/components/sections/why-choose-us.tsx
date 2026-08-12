@@ -17,8 +17,8 @@ export function WhyChooseUs() {
         <div>
           <SectionHeading
             eyebrow="Why LA Digital"
-            title="Real websites. Real support. Fair prices."
-            description="We're a small Ottawa team that builds proper websites for small businesses — no bloated agency retainers, and we don't disappear after launch."
+            title="We build the website. You get the customers."
+            description="A small Ottawa team that gets small businesses found on Google, turns visitors into bookings, and sticks around after launch — no bloated agency retainers."
           />
 
           <motion.ul
@@ -55,7 +55,7 @@ export function WhyChooseUs() {
         >
           <Image
             src="/8.jpg"
-            alt="Best quality, service, and price"
+            alt="Get found, get booked, get paid"
             fill
             sizes="(min-width: 1024px) 45vw, 100vw"
             className="object-cover"
@@ -67,13 +67,13 @@ export function WhyChooseUs() {
           />
           <div className="absolute bottom-0 left-0 right-0 flex flex-wrap items-center gap-2 p-5">
             <span className="rounded-pill bg-ink/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-foreground ring-1 ring-border">
-              Quality
+              Found
             </span>
             <span className="rounded-pill bg-ink/80 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-foreground ring-1 ring-border">
-              Service
+              Booked
             </span>
             <span className="rounded-pill bg-brand-orange px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-white">
-              Price
+              Paid
             </span>
           </div>
         </motion.div>

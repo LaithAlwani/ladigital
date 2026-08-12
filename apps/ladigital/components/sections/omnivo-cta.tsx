@@ -14,12 +14,12 @@ export function OmnivoCta() {
         <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
             <h3 className="font-display text-2xl font-semibold text-foreground text-balance sm:text-3xl">
-              Want to automate your business?
+              Never miss another customer.
             </h3>
             <p className="mt-2.5 text-sm text-muted md:text-base">
-              {name} answers customer questions and captures leads 24/7 — and connects to the
-              booking and reminder tools you already use, instead of replacing them. Try it on your
-              site.
+              {name} answers customer questions and captures leads 24/7 — even after hours — and
+              connects to the booking and reminder tools you already use, instead of replacing them.
+              Turn missed messages into booked customers.
             </p>
           </div>
           <a

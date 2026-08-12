@@ -15,6 +15,11 @@ export type FaqItem = {
 
 export const faqItems: FaqItem[] = [
   {
+    question: "Will a new website actually get me more customers?",
+    answer:
+      "That's the whole point. We build a fast, mobile-friendly site with the SEO and Google setup that helps local customers find you, a clear design that turns visitors into enquiries, and optional 24/7 booking so they can act on the spot. The website is just how we get you found and booked.",
+  },
+  {
     question: "How can a professional website be only $49/month?",
     answer:
       "We build on efficient, proven systems and host your site ourselves, so there's no big upfront agency bill. You get a custom, mobile-friendly website for one low monthly price. Larger fully-custom builds are a separate quote.",

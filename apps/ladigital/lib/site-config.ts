@@ -17,12 +17,12 @@ export const siteConfig: SiteConfig = {
   company: {
     name: "LA Digital",
     legalName: "LA Digital",
-    tagline: "Professional websites without the agency price tag",
+    tagline: "Get found. Get booked. Get more customers.",
     description:
-      "Affordable, professional websites for small businesses from $49/month — hosting, maintenance, and basic SEO included. Plus custom apps and software as you grow.",
-    heroHeadline: "Professional websites without the agency price tag.",
+      "We get small businesses noticed and booked — a professional website that ranks on Google, turns visitors into paying customers, and takes appointments 24/7. From $49/month.",
+    heroHeadline: "Get found. Get booked. Get paid.",
     heroSubheadline:
-      "A real, mobile-friendly website — designed, hosted, and maintained for just $49/month. No big upfront cost, no agency runaround.",
+      "We build your small business a website that gets you noticed on Google, turns visitors into paying customers, and takes bookings around the clock — from $49/month, no big upfront cost.",
     foundedYear: 2024,
     locale: "en-CA",
   },
@@ -61,22 +61,22 @@ export const siteConfig: SiteConfig = {
 
   valueProps: [
     {
-      iconName: "BadgeDollarSign",
-      title: "$49/month, no big upfront cost",
+      iconName: "TrendingUp",
+      title: "Get found by more customers",
       description:
-        "A professional website for the price of a couple coffees a week — designed, hosted, and maintained. No thousands-of-dollars agency invoice to start.",
+        "A fast, mobile-friendly site with the SEO and Google setup that gets you showing up when local customers search — so more of the right people find you.",
     },
     {
       iconName: "Zap",
-      title: "Professional, not “cheap”",
+      title: "Turn visitors into bookings & sales",
       description:
-        "Custom, mobile-friendly design that looks the part — fast, secure, and built to win trust. Affordable doesn't mean amateur.",
+        "A professional design that wins trust, plus built-in booking that lets customers reserve 24/7 — so clicks turn into appointments and paying customers, not bounces.",
     },
     {
       iconName: "Headphones",
-      title: "Hosting, updates & support included",
+      title: "All the upside, none of the hassle",
       description:
-        "We host it, keep it secure and up to date, and you can always reach a real person. Your site stays live and looked-after.",
+        "We build, host, secure, and maintain it — and you can always reach a real person. From $49/month with no big upfront cost, so you just focus on running your business.",
     },
   ],
 
@@ -89,9 +89,9 @@ export const siteConfig: SiteConfig = {
       id: "plans",
       name: "Professional Websites",
       summary:
-        "A professional, mobile-friendly website — designed, hosted, and maintained for one low monthly price.",
+        "A mobile-friendly website that gets you found on Google and turns visitors into customers — one low monthly price.",
       longDescription:
-        "No big upfront cost and no agency price tag. Your site is custom-designed, mobile-friendly, hosted, secured, and kept up to date — all for $49/month. Need something bigger? We'll quote it.",
+        "The website is the vehicle; more customers is the point. Custom-designed, mobile-friendly, SEO-ready, hosted, and maintained — built to get you found and get you booked, all for $49/month with no big upfront cost. Need something bigger? We'll quote it.",
       iconName: "Globe",
       image: "/1.jpg",
       featured: true,
@@ -99,7 +99,7 @@ export const siteConfig: SiteConfig = {
         {
           id: "professional-website",
           name: "Website",
-          tagline: "Everything a small business needs online — without the agency price tag.",
+          tagline: "Everything a small business needs to get found and win new customers online.",
           price: 49,
           currency: "CAD",
           unit: "per-month",
@@ -195,17 +195,17 @@ export const siteConfig: SiteConfig = {
   ],
 
   process: [
-    { number: "01", title: "Tell us about your business", description: "A quick call or form — no jargon, no pressure." },
-    { number: "02", title: "We design your site", description: "A custom, mobile-friendly design built around your business." },
-    { number: "03", title: "Go live for $49/month", description: "We launch, host, and maintain it — no big upfront bill." },
-    { number: "04", title: "Grow when you're ready", description: "Add custom software, an app, or Omnivo AI as your business grows." },
+    { number: "01", title: "Tell us about your business", description: "A quick call or form — who your customers are and what you want more of. No jargon, no pressure." },
+    { number: "02", title: "We build to get you customers", description: "A custom, mobile-friendly site designed to get you found on Google and turn visitors into bookings." },
+    { number: "03", title: "Go live for $49/month", description: "We launch, host, and maintain it — no big upfront bill, and you start getting found." },
+    { number: "04", title: "Grow when you're ready", description: "Add booking, custom software, an app, or Omnivo AI as more customers come in." },
   ],
 
   seo: {
-    defaultTitle: "LA Digital — Affordable professional websites from $49/month",
+    defaultTitle: "LA Digital — Websites that get small businesses more customers, from $49/mo",
     titleTemplate: "%s | LA Digital",
     defaultDescription:
-      "Professional, mobile-friendly websites for small businesses from $49/month — hosting, maintenance, and basic SEO included. Plus custom apps and software. Ottawa, Canada.",
+      "Get found on Google, turn visitors into customers, and take bookings 24/7 with a professional small-business website from $49/month — hosting, maintenance, and SEO included. Ottawa, Canada.",
     ogImage: "/og-default.png",
     siteUrl: "https://ladigital.ca",
     keywords: [
@@ -251,4 +251,4 @@ export const siteConfig: SiteConfig = {
 /** Date the marketing content was last reviewed — an AEO freshness signal
  * emitted in the FAQ schema and shown on the FAQ section. Update when copy
  * or pricing changes. */
-export const CONTENT_LAST_UPDATED = "2026-08-09";
+export const CONTENT_LAST_UPDATED = "2026-08-12";

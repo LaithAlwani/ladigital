@@ -24,8 +24,8 @@ export function WebsiteOffer() {
       <SectionHeading
         align="center"
         eyebrow="Simple, honest pricing"
-        title="Pick the plan that fits your business."
-        description="Start with a professional website for $49/month. Taking appointments? Add an online booking system for $99. Both include hosting, maintenance, and support."
+        title="Pick the plan that grows your business."
+        description="A professional website that gets you found for $49/month. Taking appointments? Add 24/7 online booking for $99 and stop missing customers. Both include hosting, maintenance, and support."
       />
 
       <motion.div

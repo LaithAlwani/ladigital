@@ -16,8 +16,8 @@ export function ContactSection({ defaultService, defaultPackage }: Props) {
         <Reveal>
           <SectionHeading
             eyebrow="Get started"
-            title="Let's get your business online."
-            description="Tell us a little about your business. We'll get your $49 website going — and point you to the right custom work as you grow. We reply within one business day."
+            title="Let's get you more customers."
+            description="Tell us a little about your business. We'll get your $49 website going — built to get you found and booked — and point you to the right custom work as you grow. We reply within one business day."
           />
 
           <ContactDetails />

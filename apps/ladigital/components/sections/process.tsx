@@ -34,8 +34,8 @@ export function Process() {
           <div className="mt-6 lg:sticky lg:top-24">
             <SectionHeading
               eyebrow="How it works"
-              title="A simple, predictable path from idea to launch."
-              description="No mystery, no surprise invoices — just a few simple steps to get you online for $49/month."
+              title="A simple, predictable path to more customers."
+              description="No mystery, no surprise invoices — just a few simple steps to get you found and booked for $49/month."
             />
           </div>
         </motion.div>

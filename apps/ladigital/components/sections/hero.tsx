@@ -10,7 +10,7 @@ import { siteConfig } from "@/lib/site-config";
 import { useSettings } from "@/lib/use-settings";
 import { fadeUp, stagger } from "@/lib/motion";
 
-const TRUST = ["Mobile-friendly", "Hosting included", "No big upfront cost"];
+const TRUST = ["Found on Google", "Booking built in", "No big upfront cost"];
 
 export function Hero() {
   const reduced = useReducedMotion();
@@ -41,7 +41,7 @@ export function Hero() {
             className="flex max-w-xl flex-col gap-6"
           >
             <motion.div variants={itemVariants}>
-              <Eyebrow>Small-business websites · Ottawa, Canada</Eyebrow>
+              <Eyebrow>Small-business growth · Ottawa, Canada</Eyebrow>
             </motion.div>
 
             <motion.h1
@@ -66,11 +66,11 @@ export function Hero() {
 
             <motion.div variants={itemVariants} className="mt-1 flex flex-wrap items-center gap-3">
               <Button href="/book" variant="primary" size="lg">
-                Get your $49 website
+                Get more customers
                 <ArrowRight className="h-4 w-4" />
               </Button>
               <Button href="/#websites" variant="outline" size="lg">
-                See what's included
+                See plans & pricing
               </Button>
             </motion.div>
 
