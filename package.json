@@ -12,7 +12,10 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "ladigital": "npm run dev -w la-digital",
-    "build:ladigital": "npm run build -w la-digital"
+    "build:ladigital": "npm run build -w la-digital",
+    "convex": "npm exec -w la-digital -- convex",
+    "convex:dev": "npm exec -w la-digital -- convex dev",
+    "convex:deploy": "npm exec -w la-digital -- convex deploy"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
