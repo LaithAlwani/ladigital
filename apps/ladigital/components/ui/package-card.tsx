@@ -24,20 +24,20 @@ export function PackageCard({ pkg }: Props) {
     <motion.article
       variants={reduced ? fadeInstant : fadeUp}
       className={cn(
-        "relative flex h-full flex-col gap-5 rounded-card border bg-surface p-6 shadow-card transition-shadow duration-300",
+        "relative flex h-full flex-col gap-4 rounded-card border bg-surface p-5 shadow-card transition-shadow duration-300",
         pkg.highlight
           ? "border-brand-orange/40 shadow-glow-soft hover:shadow-glow"
           : "border-border hover:border-border-strong hover:shadow-card-hover",
       )}
     >
       {pkg.highlight ? (
-        <Badge variant="orange" className="absolute -top-2.5 left-6">
+        <Badge variant="orange" className="absolute -top-2.5 left-5">
           Most popular
         </Badge>
       ) : null}
 
-      <header className="flex flex-col gap-1.5">
-        <h3 className="font-display text-xl font-semibold text-foreground">{pkg.name}</h3>
+      <header className="flex flex-col gap-1">
+        <h3 className="font-display text-lg font-semibold text-foreground">{pkg.name}</h3>
         {pkg.tagline ? <p className="text-sm text-muted">{pkg.tagline}</p> : null}
       </header>
 
@@ -67,7 +67,7 @@ export function PackageCard({ pkg }: Props) {
         </dl>
       ) : (
         <>
-          <div className="border-y border-border py-5">
+          <div className="border-y border-border py-4">
             <PriceDisplay
               price={pkg.price}
               monthlyPrice={pkg.monthlyPrice}

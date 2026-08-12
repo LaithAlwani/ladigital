@@ -19,6 +19,13 @@ export function WebsiteOffer() {
   const websites = siteConfig.services.find((s) => s.id === "plans")!;
   const packages = effectivePackages(websites, plans);
 
+  // Fit the columns to the number of plans: 3 sit side by side (in a wider,
+  // more compact grid), 2 stay as a pair.
+  const gridCols =
+    packages.length >= 3
+      ? "max-w-5xl sm:grid-cols-2 lg:grid-cols-3"
+      : "max-w-3xl sm:grid-cols-2";
+
   return (
     <Section id="websites" className="bg-ink-2/60">
       <SectionHeading
@@ -33,7 +40,7 @@ export function WebsiteOffer() {
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
         variants={reduced ? undefined : stagger(0.06, 0.1)}
-        className="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-5 md:grid-cols-2"
+        className={`mx-auto mt-12 grid grid-cols-1 gap-5 ${gridCols}`}
       >
         {packages.map((pkg) => (
           <PackageCard key={pkg.id} service={websites} pkg={pkg} />
