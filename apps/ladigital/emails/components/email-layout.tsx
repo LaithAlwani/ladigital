@@ -11,25 +11,14 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
-import { siteConfig } from "@/lib/site-config";
+import { emailPalette, emailFontStack } from "@ladigital/theme";
+import { brand } from "@/lib/brand";
 
-// Mirrors the site's @theme tokens — keep these in sync if the site palette
-// shifts. Email clients can't load Geist (it's a webfont), so we use a
-// system stack that visually approximates it.
-export const EMAIL_COLORS = {
-  brand: "#ff6a00",
-  brandSoft: "#ff8a3d",
-  bg: "#07080a", // matches --color-ink
-  surface: "#14171c", // matches --color-surface
-  surface2: "#1b1f26", // matches --color-surface-2
-  border: "#252a32", // visible border on dark
-  fg: "#f5f6f7",
-  muted: "#a3a7ad",
-  muted2: "#6b7077",
-} as const;
-
-export const EMAIL_FONT_STACK =
-  "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+// Palette + font stack derived from the site's BrandConfig (packages/theme) so
+// emails always match the live theme instead of drifting from a frozen copy.
+// Email clients can't read CSS vars, hence a concrete palette here.
+export const EMAIL_COLORS = emailPalette(brand.colors);
+export const EMAIL_FONT_STACK = emailFontStack(brand.fonts);
 
 type Props = {
   preview: string;
@@ -43,14 +32,15 @@ export function EmailLayout({ preview, children }: Props) {
   // email client without needing image hosting.
   // Set EMAIL_LOGO_URL once the logo is hosted publicly (deployed site,
   // CDN, etc.) and the real image will be used instead.
-  const logoSrc = process.env.EMAIL_LOGO_URL?.trim() || null;
+  const logoSrc = brand.identity.logoUrl || null;
+  const initials = brand.identity.wordmarkInitials || brand.identity.name.slice(0, 2).toUpperCase();
   return (
     <Html lang="en">
       <Head>
         {/* Hints for clients that support color-scheme media queries (Apple Mail,
             Outlook 2019+). Gmail does its own thing but generally renders well. */}
-        <meta name="color-scheme" content="dark" />
-        <meta name="supported-color-schemes" content="dark light" />
+        <meta name="color-scheme" content="light" />
+        <meta name="supported-color-schemes" content="light dark" />
       </Head>
       <Preview>{preview}</Preview>
       <Body
@@ -95,7 +85,7 @@ export function EmailLayout({ preview, children }: Props) {
                         src={logoSrc}
                         width={40}
                         height={40}
-                        alt="LA Digital"
+                        alt={brand.identity.name}
                         style={{
                           display: "block",
                           backgroundColor: "#ffffff",
@@ -139,7 +129,7 @@ export function EmailLayout({ preview, children }: Props) {
                                   letterSpacing: -1,
                                 }}
                               >
-                                LA
+                                {initials}
                               </div>
                               <div
                                 style={{
@@ -170,19 +160,21 @@ export function EmailLayout({ preview, children }: Props) {
                         letterSpacing: 0.3,
                       }}
                     >
-                      LA Digital
+                      {brand.identity.name}
                     </Text>
-                    <Text
-                      style={{
-                        margin: 0,
-                        color: EMAIL_COLORS.muted,
-                        fontSize: 11,
-                        letterSpacing: 1.6,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Web · Apps · AI
-                    </Text>
+                    {brand.identity.tagline ? (
+                      <Text
+                        style={{
+                          margin: 0,
+                          color: EMAIL_COLORS.muted,
+                          fontSize: 11,
+                          letterSpacing: 1.6,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {brand.identity.tagline}
+                      </Text>
+                    ) : null}
                   </td>
                 </tr>
               </tbody>
@@ -198,21 +190,22 @@ export function EmailLayout({ preview, children }: Props) {
           <Hr style={{ border: "none", borderTop: `1px solid ${EMAIL_COLORS.border}`, margin: 0 }} />
           <Section style={{ padding: "20px 28px", backgroundColor: EMAIL_COLORS.bg }}>
             <Text style={{ margin: 0, fontSize: 12, color: EMAIL_COLORS.muted, lineHeight: 1.6 }}>
-              {siteConfig.company.legalName} · {siteConfig.contact.city}, {siteConfig.contact.region}
+              {brand.identity.legalName}
+              {brand.contact.city ? ` · ${brand.contact.city}, ${brand.contact.region}` : ""}
             </Text>
             <Text style={{ margin: "4px 0 0", fontSize: 12, color: EMAIL_COLORS.muted, lineHeight: 1.6 }}>
-              <Link href={`mailto:${siteConfig.contact.email}`} style={{ color: EMAIL_COLORS.brand, textDecoration: "none" }}>
-                {siteConfig.contact.email}
+              <Link href={`mailto:${brand.contact.email}`} style={{ color: EMAIL_COLORS.brand, textDecoration: "none" }}>
+                {brand.contact.email}
               </Link>
-              {siteConfig.contact.phone ? (
+              {brand.contact.phone ? (
                 <>
                   {" · "}
-                  <span style={{ color: EMAIL_COLORS.muted }}>{siteConfig.contact.phone}</span>
+                  <span style={{ color: EMAIL_COLORS.muted }}>{brand.contact.phone}</span>
                 </>
               ) : null}
             </Text>
             <Text style={{ margin: "12px 0 0", fontSize: 11, color: EMAIL_COLORS.muted2, lineHeight: 1.5 }}>
-              You're receiving this because you contacted {siteConfig.company.name}.
+              You're receiving this because you contacted {brand.identity.name}.
             </Text>
           </Section>
         </Container>

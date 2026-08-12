@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { siteConfig } from "@/lib/site-config";
+import { pdfPalette } from "@ladigital/theme";
+import { brand } from "@/lib/brand";
 import { invoiceTotals, formatMoney, formatDate, type InvoiceItem } from "@/lib/invoice";
 
 export type InvoicePdfData = {
@@ -19,9 +20,9 @@ export type InvoicePdfData = {
 
 export type InvoiceLogo = { dataUrl: string; aspect: number } | null;
 
-const ORANGE: [number, number, number] = [255, 106, 0];
-const INK: [number, number, number] = [20, 23, 28];
-const MUTED: [number, number, number] = [120, 128, 138];
+// Brand PDF palette derived from the site's BrandConfig (jsPDF can't read CSS
+// vars). Swap the app's brand.colors and the invoice re-themes automatically.
+const { accent: ORANGE, ink: INK, muted: MUTED } = pdfPalette(brand.colors);
 
 /**
  * Pure jsPDF layout — no DOM/canvas, so it runs identically in the browser
@@ -45,7 +46,7 @@ export function renderInvoiceToDoc(data: InvoicePdfData, logo: InvoiceLogo): jsP
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(...INK);
-    doc.text(siteConfig.company.name, margin, margin + 20);
+    doc.text(brand.identity.name, margin, margin + 20);
     headerBottom = margin + 24;
   }
 
@@ -66,14 +67,14 @@ export function renderInvoiceToDoc(data: InvoicePdfData, logo: InvoiceLogo): jsP
   doc.setTextColor(...INK);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text(siteConfig.company.legalName, margin, y + 15);
+  doc.text(brand.identity.legalName, margin, y + 15);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(...MUTED);
   const fromLines = [
-    siteConfig.contact.addressLine ?? `${siteConfig.contact.city}, ${siteConfig.contact.region}`,
-    siteConfig.contact.email,
-    siteConfig.contact.phone ?? "",
+    brand.contact.addressLine ?? `${brand.contact.city}, ${brand.contact.region}`,
+    brand.contact.email,
+    brand.contact.phone ?? "",
   ].filter(Boolean);
   doc.text(fromLines, margin, y + 30);
 
@@ -174,7 +175,7 @@ export function renderInvoiceToDoc(data: InvoicePdfData, logo: InvoiceLogo): jsP
   doc.setFontSize(9);
   doc.setTextColor(...MUTED);
   doc.text(
-    `Thank you for your business.  ·  ${siteConfig.company.name}  ·  ${siteConfig.contact.email}`,
+    `Thank you for your business.  ·  ${brand.identity.name}  ·  ${brand.contact.email}`,
     pageW / 2,
     footerY,
     { align: "center" },
