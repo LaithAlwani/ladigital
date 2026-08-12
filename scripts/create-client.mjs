@@ -147,7 +147,8 @@ for the full setup + provisioning checklist. Quick version:
 4. lib/site-config.ts  — replace marketing copy / sections for this client.
 5. Provision Convex:   npm exec -w ${slug} -- convex dev   (creates a NEW deployment)
 6. Set env (per docs): Google OAuth, SMTP, ADMIN_* , CRON_SECRET, EMAIL_LOGO_URL.
-   Optional: AGENT_API_KEY  — only if this client uses Omnivo AI (see docs/agent-api.md).
+   Optional (Omnivo AI): AGENT_API_KEY (API access), OMNIVOAI_API_KEY + OMNIVOAI_WIDGET_URL
+   (on-site chat widget). See docs/agent-api.md.
 7. Vercel project:     root directory = apps/${slug}.
 `;
 fs.writeFileSync(path.join(dest, "SCAFFOLD.md"), note);

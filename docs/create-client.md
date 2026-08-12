@@ -72,7 +72,8 @@ reference app:
 | Google Calendar | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` |
 | Crons | `CRON_SECRET` |
 | Email logo (optional) | `EMAIL_LOGO_URL` (public HTTPS; else an initials badge is used) |
-| Omnivo AI (optional) | `AGENT_API_KEY` — only if this client uses Omnivo AI. See [agent-api.md](./agent-api.md) |
+| Omnivo AI — API (optional) | `AGENT_API_KEY` — lets Omnivo call this client's booking/CRM. See [agent-api.md](./agent-api.md) |
+| Omnivo AI — widget (optional) | `OMNIVOAI_API_KEY` (full `ek_….key` embed key) + `OMNIVOAI_WIDGET_URL` (Omnivo's production HTTPS widget URL) — renders the on-site chat widget |
 
 Then connect Google Calendar from `/admin/connect`, and set bookable hours in
 `/admin/availability`.

@@ -106,15 +106,15 @@ export default async function RootLayout({
           </SocialsProvider>
         </ConvexClientProvider>
 
-        {/* Omnivo AI chat widget — site-wide. Only renders when the client has
-            an Omnivo key set (OMNIVOAI_API_KEY), so sites without it stay clean.
-            NOTE: swap the localhost src for Omnivo's production HTTPS widget URL
-            before the live site can load it (an http:// script is blocked on an
-            https:// page). */}
+        {/* Omnivo AI chat widget — site-wide. Renders only when this client has
+            an Omnivo embed key set (OMNIVOAI_API_KEY = the full `ek_….key`), so
+            sites without it stay clean. OMNIVOAI_WIDGET_URL points at Omnivo's
+            widget script — set it to the production HTTPS URL for the live site;
+            it falls back to the local dev server when unset. */}
         {process.env.OMNIVOAI_API_KEY ? (
           <Script
-            src="http://localhost:3000/widget.js"
-            data-embed-key={`ek_2cb6562d61c7.${process.env.OMNIVOAI_API_KEY}`}
+            src={process.env.OMNIVOAI_WIDGET_URL ?? "http://localhost:3000/widget.js"}
+            data-embed-key={process.env.OMNIVOAI_API_KEY}
             data-color="#FF5C1A"
             data-text-color="#ffffff"
             data-position="right"
