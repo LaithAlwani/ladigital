@@ -13,6 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@ladigital/admin-kit": "*",
+    "@ladigital/agent-api": "*",
     "@ladigital/booking": "*",
     "@ladigital/crm": "*",
     "@ladigital/email": "*",

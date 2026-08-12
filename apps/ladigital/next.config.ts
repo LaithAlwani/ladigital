@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     "@ladigital/email",
     "@ladigital/booking",
     "@ladigital/crm",
+    "@ladigital/agent-api",
   ],
   images: {
     // AVIF cuts bytes ~30% over WebP on photographic content; Next.js falls
