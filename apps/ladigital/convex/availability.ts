@@ -2,45 +2,21 @@ import { v } from "convex/values";
 import { mutation, query, internalMutation, type QueryCtx } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
 import { assertAdmin } from "./lib/requireAdmin";
+import { makeDefaultRules, type Rules } from "@ladigital/booking";
 
 // ----------------------------------------------------------------------------
 // Availability rules — the owner's bookable-hours configuration (a singleton).
-// If no document exists yet, DEFAULT_RULES keeps the booking page working out
-// of the box. Phase 2 adds an admin UI (guarded) to edit these.
+// The `Rules` shape + sensible defaults live in @ladigital/booking; this app
+// binds the client-specific timezone + meeting title. If no document exists
+// yet, DEFAULT_RULES keeps the booking page working out of the box.
 // ----------------------------------------------------------------------------
 
-export type Rules = {
-  timezone: string;
-  weeklyHours: { weekday: number; start: string; end: string }[];
-  slotMinutes: number;
-  durationMinutes: number;
-  bufferBefore: number;
-  bufferAfter: number;
-  minNoticeHours: number;
-  maxAdvanceDays: number;
-  meetingTitle: string;
-};
+export type { Rules };
 
-export const DEFAULT_RULES: Rules = {
+export const DEFAULT_RULES: Rules = makeDefaultRules({
   timezone: "America/Toronto",
-  weeklyHours: [
-    { weekday: 1, start: "09:00", end: "16:00" },
-    { weekday: 2, start: "09:00", end: "16:00" },
-    { weekday: 3, start: "09:00", end: "16:00" },
-    { weekday: 4, start: "09:00", end: "16:00" },
-    { weekday: 5, start: "09:00", end: "16:00" },
-  ],
-  slotMinutes: 30,
-  durationMinutes: 30,
-  // No padding by default, so consecutive calls are bookable back-to-back
-  // (a 9:00–9:30 booking leaves 9:30–10:00 open). The admin can add buffers
-  // later if breathing room between calls is wanted.
-  bufferBefore: 0,
-  bufferAfter: 0,
-  minNoticeHours: 12,
-  maxAdvanceDays: 21,
   meetingTitle: "Discovery call — LA Digital",
-};
+});
 
 /** Read the effective rules (stored doc or defaults). Used internally + by the slot query. */
 export async function effectiveRules(ctx: QueryCtx): Promise<Rules> {
