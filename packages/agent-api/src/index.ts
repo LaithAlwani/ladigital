@@ -91,4 +91,10 @@ export const AGENT_ENDPOINTS = [
     body: { name: "string", email: "string?", phone: "string?", company: "string?", notes: "string?", dealTitle: "string?", dealValue: "number?" },
     returns: { contactId: "string", dealId: "string?" },
   },
+  {
+    method: "GET",
+    path: "/api/agent/contacts",
+    summary: "Recognize a returning lead by email or phone. Query: ?email= / ?phone=.",
+    returns: { contact: "{ name, company?, email?, phone?, source?, deals[] } | null" },
+  },
 ] as const;

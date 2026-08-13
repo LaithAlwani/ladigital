@@ -82,7 +82,8 @@ export const crmTables = {
     createdAt: v.number(),
   })
     .index("by_created", ["createdAt"])
-    .index("by_email", ["email"]),
+    .index("by_email", ["email"])
+    .index("by_phone", ["phone"]),
 
   // An opportunity moving through the pipeline stages.
   deals: defineTable({

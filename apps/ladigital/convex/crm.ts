@@ -63,6 +63,55 @@ export const contactDetail = query({
   },
 });
 
+/** Look a returning lead up by email or phone (for an external assistant, e.g.
+ *  Omnivo AI, recognizing a repeat visitor). Returns a compact profile + their
+ *  open deals, or null when there's no match. Admin-guarded like the rest. */
+export const findContact = query({
+  args: {
+    adminKey: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminKey);
+    const email = args.email?.trim() || undefined;
+    const phone = args.phone?.trim() || undefined;
+    if (!email && !phone) return null;
+
+    let contact = null;
+    if (email) {
+      contact = await ctx.db
+        .query("contacts")
+        .withIndex("by_email", (q) => q.eq("email", email))
+        .first();
+    }
+    if (!contact && phone) {
+      contact = await ctx.db
+        .query("contacts")
+        .withIndex("by_phone", (q) => q.eq("phone", phone))
+        .first();
+    }
+    if (!contact) return null;
+
+    const deals = await ctx.db
+      .query("deals")
+      .withIndex("by_contact", (q) => q.eq("contactId", contact._id))
+      .collect();
+    return {
+      name: contact.name,
+      company: contact.company ?? null,
+      email: contact.email ?? null,
+      phone: contact.phone ?? null,
+      source: contact.source ?? null,
+      deals: deals.map((d) => ({
+        title: d.title,
+        stage: d.stage,
+        value: d.value ?? null,
+      })),
+    };
+  },
+});
+
 /** A deal with its contact, activity timeline, and tasks. */
 export const dealDetail = query({
   args: { adminKey: v.string(), id: v.id("deals") },
