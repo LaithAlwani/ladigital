@@ -101,6 +101,11 @@ export async function getDealDetail(id: string) {
   return fetchQuery(api.crm.dealDetail, { adminKey: key(), id: id as Id<"deals"> });
 }
 
+export async function getContactDetail(id: string) {
+  await ensureAdmin();
+  return fetchQuery(api.crm.contactDetail, { adminKey: key(), id: id as Id<"contacts"> });
+}
+
 // ---- Activities + tasks ----------------------------------------------------
 
 export async function addActivity(input: {

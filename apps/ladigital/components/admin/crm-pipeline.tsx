@@ -99,11 +99,8 @@ export function CrmPipeline({
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-foreground">Pipeline</h1>
-          <p className="mt-1 text-sm text-muted">Track leads from first hello to won — drag cards between stages.</p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-muted">Track leads from first hello to won — drag cards between stages.</p>
         <div className="flex items-center gap-2.5">
           <StatChip label="Open" value={formatMoney(openValue)} />
           <StatChip label="Won" value={formatMoney(wonValue)} accent />
