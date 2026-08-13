@@ -76,7 +76,7 @@ export function AdminSidebar() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="scrollbar-thin flex-1 overflow-y-auto">
               <AdminNav />
             </div>
             <Footer />
@@ -89,7 +89,7 @@ export function AdminSidebar() {
         <div className="px-1">
           <Logo size="sm" href="/admin" />
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="scrollbar-thin flex-1 overflow-y-auto">
           <AdminNav />
         </div>
         <Footer />

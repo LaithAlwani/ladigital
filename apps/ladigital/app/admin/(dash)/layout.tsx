@@ -11,7 +11,7 @@ export default async function AdminDashLayout({ children }: { children: React.Re
       <ToastProvider>
         <div className="flex min-h-[100svh] flex-col bg-ink lg:flex-row">
           <AdminSidebar />
-          <main className="flex-1 px-5 py-8 sm:px-8 lg:px-10">
+          <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-10">
             <div className="mx-auto w-full max-w-5xl">{children}</div>
           </main>
         </div>

@@ -111,8 +111,10 @@ export function CrmPipeline({
         </div>
       </div>
 
-      {/* Board */}
-      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-3">
+      {/* Board — horizontal scroll only. px/pt/pb give the card hover-lift and
+          shadow room inside the scroll box (overflow-x also implies overflow-y:
+          auto), and there's no negative margin bleeding past the container. */}
+      <div className="scrollbar-thin flex gap-3 overflow-x-auto px-0.5 pt-1 pb-3">
         {PIPELINE_STAGES.map((stage) => {
           const col = deals
             .filter((d) => d.stage === stage.value)
@@ -592,7 +594,7 @@ function DealDrawer({
         ) : !detail ? (
           <p className="p-6 text-sm text-muted">Deal not found.</p>
         ) : (
-          <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
+          <div className="scrollbar-thin flex flex-1 flex-col gap-5 overflow-y-auto p-6">
             {/* Stage switcher */}
             <div className="flex flex-col gap-2">
               <label className={labelBase}>Stage</label>
