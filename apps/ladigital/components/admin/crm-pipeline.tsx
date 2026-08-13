@@ -4,8 +4,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   Plus,
-  ChevronLeft,
-  ChevronRight,
   X,
   Trash2,
   Receipt,
@@ -13,16 +11,18 @@ import {
   CheckCircle2,
   Circle,
   Loader2,
+  GripVertical,
+  Inbox,
 } from "lucide-react";
 import type { Doc } from "@/convex/_generated/dataModel";
 import {
   PIPELINE_STAGES,
   STAGE_MAP,
-  adjacentStage,
   openPipelineValue,
   formatMoney,
   type DealStage,
 } from "@ladigital/crm";
+import { cn } from "@/lib/cn";
 import { TextField, TextArea, inputBase, labelBase } from "./admin-fields";
 import { toast } from "./toast";
 import { useConfirm } from "./confirm-dialog";
@@ -44,61 +44,145 @@ import {
 type Deal = Doc<"deals">;
 type Contact = Doc<"contacts">;
 
+function initialsOf(label: string): string {
+  const parts = label.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+}
+
 export function CrmPipeline({
   initial,
 }: {
   initial: { deals: Deal[]; contacts: Contact[] };
 }) {
   const router = useRouter();
-  const { deals, contacts } = initial;
+  const { contacts } = initial;
+
+  // Local mirror of the deals so drag-and-drop feels instant; the server
+  // refresh reconciles it. Reset whenever a fresh server payload arrives.
+  const [deals, setDeals] = React.useState<Deal[]>(initial.deals);
+  React.useEffect(() => setDeals(initial.deals), [initial.deals]);
+
   const contactById = React.useMemo(
     () => new Map(contacts.map((c) => [c._id, c])),
     [contacts],
   );
   const [openId, setOpenId] = React.useState<string | null>(null);
-  const forecast = openPipelineValue(deals);
+  const [draggingId, setDraggingId] = React.useState<string | null>(null);
+  const [overStage, setOverStage] = React.useState<DealStage | null>(null);
+
+  const openValue = openPipelineValue(deals);
+  const wonValue = deals
+    .filter((d) => d.stage === "won")
+    .reduce((s, d) => s + (Number(d.value) || 0), 0);
+
+  async function drop(toStage: DealStage) {
+    const id = draggingId;
+    setOverStage(null);
+    setDraggingId(null);
+    if (!id) return;
+    const deal = deals.find((d) => d._id === id);
+    if (!deal || deal.stage === toStage) return;
+    // Optimistic move to the bottom of the target column.
+    setDeals((prev) =>
+      prev.map((d) => (d._id === id ? { ...d, stage: toStage, order: Number.MAX_SAFE_INTEGER } : d)),
+    );
+    try {
+      await moveDeal(id, toStage);
+    } catch {
+      toast("Could not move the deal.", "error");
+    } finally {
+      router.refresh();
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-semibold text-foreground">Pipeline</h1>
-          <p className="mt-1 text-sm text-muted">
-            Leads and deals through the funnel · {formatMoney(forecast)} open
-          </p>
+          <p className="mt-1 text-sm text-muted">Track leads from first hello to won — drag cards between stages.</p>
         </div>
-        <NewContactButton onDone={() => router.refresh()} />
+        <div className="flex items-center gap-2.5">
+          <StatChip label="Open" value={formatMoney(openValue)} />
+          <StatChip label="Won" value={formatMoney(wonValue)} accent />
+          <NewContactButton onDone={() => router.refresh()} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+      {/* Board */}
+      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-3">
         {PIPELINE_STAGES.map((stage) => {
           const col = deals
             .filter((d) => d.stage === stage.value)
             .sort((a, b) => a.order - b.order);
+          const colValue = col.reduce((s, d) => s + (Number(d.value) || 0), 0);
+          const isOver = overStage === stage.value;
           return (
-            <div key={stage.value} className="flex min-w-0 flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <span className={`h-2 w-2 rounded-full ${stage.dot}`} />
-                <span className="text-sm font-semibold text-foreground">{stage.label}</span>
-                <span className="text-xs text-muted-2">{col.length}</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                {col.map((deal) => (
-                  <DealCard
-                    key={deal._id}
-                    deal={deal}
-                    contact={deal.contactId ? contactById.get(deal.contactId) : undefined}
-                    onOpen={() => setOpenId(deal._id)}
-                    onMoved={() => router.refresh()}
-                  />
-                ))}
+            <section
+              key={stage.value}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                if (overStage !== stage.value) setOverStage(stage.value);
+              }}
+              onDragLeave={(e) => {
+                // Only clear when leaving the column itself, not a child.
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setOverStage((s) => (s === stage.value ? null : s));
+                }
+              }}
+              onDrop={() => drop(stage.value)}
+              className={cn(
+                "flex w-68 shrink-0 flex-col rounded-2xl border transition-colors",
+                isOver
+                  ? "border-brand-orange/50 bg-brand-orange/5"
+                  : "border-border/70 bg-ink-2/40",
+              )}
+            >
+              <header className="flex items-center justify-between gap-2 px-3.5 pt-3.5 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className={cn("h-2 w-2 rounded-full", stage.dot)} />
+                  <span className="text-sm font-semibold text-foreground">{stage.label}</span>
+                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-surface-2 px-1.5 text-[11px] font-medium text-muted">
+                    {col.length}
+                  </span>
+                </div>
+                {colValue > 0 ? (
+                  <span className="text-xs font-medium tabular-nums text-muted-2">{formatMoney(colValue)}</span>
+                ) : null}
+              </header>
+
+              <div className="flex min-h-20 flex-1 flex-col gap-2 p-2.5 pt-1">
+                {col.length === 0 ? (
+                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-border/70 py-6 text-center">
+                    <Inbox className="h-4 w-4 text-muted-2" />
+                    <span className="text-xs text-muted-2">Drop a deal here</span>
+                  </div>
+                ) : (
+                  col.map((deal) => (
+                    <DealCard
+                      key={deal._id}
+                      deal={deal}
+                      contact={deal.contactId ? contactById.get(deal.contactId) : undefined}
+                      dragging={draggingId === deal._id}
+                      onOpen={() => setOpenId(deal._id)}
+                      onDragStart={() => setDraggingId(deal._id)}
+                      onDragEnd={() => {
+                        setDraggingId(null);
+                        setOverStage(null);
+                      }}
+                    />
+                  ))
+                )}
                 <AddDealInline
                   stage={stage.value}
                   contacts={contacts}
                   onDone={() => router.refresh()}
                 />
               </div>
-            </div>
+            </section>
           );
         })}
       </div>
@@ -106,7 +190,6 @@ export function CrmPipeline({
       {openId ? (
         <DealDrawer
           dealId={openId}
-          contacts={contacts}
           onClose={() => setOpenId(null)}
           onChanged={() => router.refresh()}
         />
@@ -115,65 +198,77 @@ export function CrmPipeline({
   );
 }
 
+function StatChip({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col rounded-xl border px-3.5 py-1.5",
+        accent ? "border-success/25 bg-success/5" : "border-border bg-surface",
+      )}
+    >
+      <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-2">{label}</span>
+      <span className={cn("text-sm font-semibold tabular-nums", accent ? "text-success" : "text-foreground")}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
 function DealCard({
   deal,
   contact,
+  dragging,
   onOpen,
-  onMoved,
+  onDragStart,
+  onDragEnd,
 }: {
   deal: Deal;
   contact?: Contact;
+  dragging: boolean;
   onOpen: () => void;
-  onMoved: () => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
 }) {
-  const [busy, setBusy] = React.useState(false);
-  const left = adjacentStage(deal.stage, -1);
-  const right = adjacentStage(deal.stage, 1);
-
-  async function move(stage: DealStage) {
-    setBusy(true);
-    try {
-      await moveDeal(deal._id, stage);
-      onMoved();
-    } catch {
-      toast("Could not move the deal.", "error");
-      setBusy(false);
-    }
-  }
-
+  const label = contact ? contact.company || contact.name : "";
   return (
-    <div className="group rounded-lg border border-border bg-surface p-3 shadow-card transition-colors hover:border-border-strong">
-      <button type="button" onClick={onOpen} className="block w-full text-left">
-        <p className="text-sm font-medium text-foreground">{deal.title}</p>
-        {contact ? (
-          <p className="mt-0.5 text-xs text-muted">{contact.company || contact.name}</p>
-        ) : null}
+    <article
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", deal._id);
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart();
+      }}
+      onDragEnd={onDragEnd}
+      onClick={onOpen}
+      className={cn(
+        "group relative cursor-pointer rounded-xl border border-border bg-surface p-3 shadow-sm transition-all",
+        "hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover",
+        dragging && "opacity-40 ring-2 ring-brand-orange/40",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium leading-snug text-foreground">{deal.title}</p>
         {typeof deal.value === "number" && deal.value > 0 ? (
-          <p className="mt-1 text-xs font-semibold text-foreground">{formatMoney(deal.value)}</p>
+          <span className="shrink-0 rounded-md bg-brand-orange/10 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-brand-orange">
+            {formatMoney(deal.value)}
+          </span>
         ) : null}
-      </button>
-      <div className="mt-2 flex items-center justify-between opacity-0 transition-opacity group-hover:opacity-100">
-        <button
-          type="button"
-          disabled={!left || busy}
-          onClick={() => left && move(left)}
-          aria-label="Move left"
-          className="grid h-6 w-6 place-items-center rounded text-muted-2 transition-colors hover:bg-surface-2 hover:text-foreground disabled:opacity-30"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-2" /> : null}
-        <button
-          type="button"
-          disabled={!right || busy}
-          onClick={() => right && move(right)}
-          aria-label="Move right"
-          className="grid h-6 w-6 place-items-center rounded text-muted-2 transition-colors hover:bg-surface-2 hover:text-foreground disabled:opacity-30"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
       </div>
-    </div>
+
+      {contact ? (
+        <div className="mt-2.5 flex items-center gap-2">
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-[10px] font-semibold text-muted">
+            {initialsOf(label)}
+          </span>
+          <span className="truncate text-xs text-muted">{label}</span>
+        </div>
+      ) : (
+        <div className="mt-2.5 text-xs text-muted-2">No contact</div>
+      )}
+
+      {/* Drag affordance */}
+      <GripVertical className="absolute right-1.5 top-1.5 h-3.5 w-3.5 text-muted-2 opacity-0 transition-opacity group-hover:opacity-100" />
+    </article>
   );
 }
 
@@ -219,7 +314,7 @@ function AddDealInline({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-muted transition-colors hover:border-brand-orange hover:text-brand-orange"
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2 text-xs font-medium text-muted-2 transition-colors hover:border-brand-orange/60 hover:bg-surface hover:text-brand-orange"
       >
         <Plus className="h-3.5 w-3.5" /> Add deal
       </button>
@@ -227,7 +322,7 @@ function AddDealInline({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-3">
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-2.5 shadow-sm">
       <input
         autoFocus
         value={title}
@@ -236,11 +331,7 @@ function AddDealInline({
         placeholder="Deal title"
         className={inputBase}
       />
-      <select
-        value={contactId}
-        onChange={(e) => setContactId(e.target.value)}
-        className={inputBase}
-      >
+      <select value={contactId} onChange={(e) => setContactId(e.target.value)} className={inputBase}>
         <option value="">No contact</option>
         {contacts.map((c) => (
           <option key={c._id} value={c._id}>
@@ -281,16 +372,22 @@ function NewContactButton({ onDone }: { onDone: () => void }) {
   const [name, setName] = React.useState("");
   const [company, setCompany] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+
+  function reset() {
+    setName("");
+    setCompany("");
+    setEmail("");
+    setPhone("");
+  }
 
   async function submit() {
     if (!name.trim()) return;
     setBusy(true);
     try {
-      await createContact({ name: name.trim(), company, email, source: "manual" });
-      setName("");
-      setCompany("");
-      setEmail("");
+      await createContact({ name: name.trim(), company, email, phone, source: "manual" });
+      reset();
       setOpen(false);
       onDone();
       toast("Contact added.", "success");
@@ -306,33 +403,37 @@ function NewContactButton({ onDone }: { onDone: () => void }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow"
+        className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand-orange px-5 text-sm font-medium text-white transition-all hover:bg-brand-orange-soft hover:shadow-glow"
       >
         <Plus className="h-4 w-4" /> New contact
       </button>
       {open ? (
-        <div className="absolute right-0 z-20 mt-2 flex w-72 flex-col gap-2 rounded-card border border-border bg-surface p-4 shadow-card-hover">
-          <TextField label="Name" value={name} onChange={setName} />
-          <TextField label="Company" value={company} onChange={setCompany} />
-          <TextField label="Email" value={email} onChange={setEmail} type="email" />
-          <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted hover:text-foreground"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={submit}
-              disabled={busy || !name.trim()}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-orange px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-orange-soft disabled:opacity-60"
-            >
-              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Add
-            </button>
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} aria-hidden />
+          <div className="absolute right-0 z-20 mt-2 flex w-80 flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-card-hover">
+            <TextField label="Name" value={name} onChange={setName} />
+            <TextField label="Company" value={company} onChange={setCompany} />
+            <TextField label="Email" value={email} onChange={setEmail} type="email" />
+            <TextField label="Phone" value={phone} onChange={setPhone} type="tel" />
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted hover:text-foreground"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={submit}
+                disabled={busy || !name.trim()}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-orange px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-orange-soft disabled:opacity-60"
+              >
+                {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Add
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       ) : null}
     </div>
   );
@@ -347,12 +448,10 @@ type DealDetail = {
 
 function DealDrawer({
   dealId,
-  contacts,
   onClose,
   onChanged,
 }: {
   dealId: string;
-  contacts: Contact[];
   onClose: () => void;
   onChanged: () => void;
 }) {
@@ -366,6 +465,7 @@ function DealDrawer({
   const [note, setNote] = React.useState("");
   const [taskTitle, setTaskTitle] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  const [moving, setMoving] = React.useState(false);
   const [promoting, setPromoting] = React.useState(false);
 
   const load = React.useCallback(async () => {
@@ -383,6 +483,13 @@ function DealDrawer({
     void load();
   }, [load]);
 
+  // Close on Escape.
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   async function save() {
     setSaving(true);
     try {
@@ -397,6 +504,20 @@ function DealDrawer({
       toast("Could not save.", "error");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function moveTo(stage: DealStage) {
+    if (!detail || detail.deal.stage === stage) return;
+    setMoving(true);
+    try {
+      await moveDeal(dealId, stage);
+      await load();
+      onChanged();
+    } catch {
+      toast("Could not move the deal.", "error");
+    } finally {
+      setMoving(false);
     }
   }
 
@@ -451,19 +572,14 @@ function DealDrawer({
   return (
     <div className="fixed inset-0 z-[90] flex justify-end">
       <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={onClose} aria-hidden />
-      <div className="relative flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-border bg-surface p-6 shadow-card-hover">
-        <div className="flex items-start justify-between gap-4">
-          <span
-            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${
-              detail ? STAGE_MAP[detail.deal.stage].badge : "border-border text-muted"
-            }`}
-          >
-            {detail ? STAGE_MAP[detail.deal.stage].label : "…"}
-          </span>
+      <div className="relative flex h-full w-full max-w-md flex-col border-l border-border bg-surface shadow-card-hover">
+        {/* Sticky header */}
+        <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
+          <h2 className="font-display text-lg font-semibold text-foreground">Deal</h2>
           <button
             type="button"
             onClick={onClose}
-            className="grid h-8 w-8 place-items-center rounded-lg text-muted-2 hover:bg-surface-2 hover:text-foreground"
+            className="grid h-8 w-8 place-items-center rounded-lg text-muted-2 transition-colors hover:bg-surface-2 hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -474,9 +590,36 @@ function DealDrawer({
             <Loader2 className="h-5 w-5 animate-spin text-muted-2" />
           </div>
         ) : !detail ? (
-          <p className="mt-6 text-sm text-muted">Deal not found.</p>
+          <p className="p-6 text-sm text-muted">Deal not found.</p>
         ) : (
-          <div className="mt-4 flex flex-col gap-5">
+          <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
+            {/* Stage switcher */}
+            <div className="flex flex-col gap-2">
+              <label className={labelBase}>Stage</label>
+              <div className="flex flex-wrap gap-1.5">
+                {PIPELINE_STAGES.map((s) => {
+                  const active = detail.deal.stage === s.value;
+                  return (
+                    <button
+                      key={s.value}
+                      type="button"
+                      disabled={moving}
+                      onClick={() => moveTo(s.value)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-60",
+                        active
+                          ? s.badge
+                          : "border-border text-muted hover:border-border-strong hover:text-foreground",
+                      )}
+                    >
+                      <span className={cn("h-1.5 w-1.5 rounded-full", active ? s.dot : "bg-muted-2/50")} />
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <TextField label="Title" value={title} onChange={setTitle} />
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
@@ -490,8 +633,17 @@ function DealDrawer({
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className={labelBase}>Contact</label>
-                <div className="flex h-[42px] items-center px-1 text-sm text-foreground">
-                  {detail.contact ? detail.contact.company || detail.contact.name : "—"}
+                <div className="flex h-[42px] items-center gap-2 px-1 text-sm text-foreground">
+                  {detail.contact ? (
+                    <>
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-[10px] font-semibold text-muted">
+                        {initialsOf(detail.contact.company || detail.contact.name)}
+                      </span>
+                      <span className="truncate">{detail.contact.company || detail.contact.name}</span>
+                    </>
+                  ) : (
+                    <span className="text-muted-2">—</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -504,26 +656,26 @@ function DealDrawer({
                 disabled={saving}
                 className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-orange px-4 text-sm font-medium text-white hover:bg-brand-orange-soft disabled:opacity-60"
               >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save changes
               </button>
               <button
                 type="button"
                 onClick={del}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border-strong px-4 text-sm font-medium text-muted hover:border-danger hover:text-danger"
+                className="ml-auto inline-flex h-10 items-center gap-2 rounded-lg border border-border-strong px-4 text-sm font-medium text-muted transition-colors hover:border-danger hover:text-danger"
               >
                 <Trash2 className="h-4 w-4" /> Delete
               </button>
             </div>
 
             {/* Promote */}
-            <div className="flex flex-col gap-2 rounded-card border border-border bg-surface-2 p-4">
+            <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface-2/60 p-4">
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted">Promote</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => promote(false)}
                   disabled={promoting || !detail.contact}
-                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-border-strong px-3 text-sm font-medium text-foreground hover:bg-surface disabled:opacity-50"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:border-brand-orange/50 disabled:opacity-50"
                 >
                   <UserCheck className="h-4 w-4" /> To client
                 </button>
@@ -543,52 +695,54 @@ function DealDrawer({
             </div>
 
             {/* Tasks */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2.5">
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted">Tasks</p>
-              {detail.tasks.map((t) => (
-                <div key={t._id} className="flex items-center gap-2 text-sm">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await toggleTask(t._id, !t.done);
-                      await load();
-                    }}
-                    className="text-muted-2 hover:text-foreground"
-                  >
-                    {t.done ? (
-                      <CheckCircle2 className="h-4 w-4 text-success" />
-                    ) : (
-                      <Circle className="h-4 w-4" />
-                    )}
-                  </button>
-                  <span className={t.done ? "flex-1 text-muted-2 line-through" : "flex-1 text-foreground"}>
-                    {t.title}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await removeTask(t._id);
-                      await load();
-                    }}
-                    className="text-muted-2 hover:text-danger"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <input
-                  value={taskTitle}
-                  onChange={(e) => setTaskTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && newTask()}
-                  placeholder="Add a task…"
-                  className={inputBase}
-                />
-              </div>
+              {detail.tasks.length === 0 ? (
+                <p className="text-xs text-muted-2">No tasks yet.</p>
+              ) : (
+                detail.tasks.map((t) => (
+                  <div key={t._id} className="group flex items-center gap-2.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await toggleTask(t._id, !t.done);
+                        await load();
+                      }}
+                      className="text-muted-2 transition-colors hover:text-foreground"
+                    >
+                      {t.done ? (
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                      ) : (
+                        <Circle className="h-4 w-4" />
+                      )}
+                    </button>
+                    <span className={t.done ? "flex-1 text-muted-2 line-through" : "flex-1 text-foreground"}>
+                      {t.title}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await removeTask(t._id);
+                        await load();
+                      }}
+                      className="text-muted-2 opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))
+              )}
+              <input
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && newTask()}
+                placeholder="Add a task and press Enter…"
+                className={inputBase}
+              />
             </div>
 
             {/* Activity */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2.5">
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted">Activity</p>
               <div className="flex gap-2">
                 <input
@@ -601,19 +755,25 @@ function DealDrawer({
                 <button
                   type="button"
                   onClick={logNote}
-                  className="inline-flex h-[42px] items-center rounded-lg border border-border-strong px-3 text-sm font-medium text-foreground hover:bg-surface-2"
+                  className="inline-flex h-[42px] shrink-0 items-center rounded-lg border border-border-strong px-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-2"
                 >
                   Log
                 </button>
               </div>
-              <ul className="flex flex-col gap-2">
-                {detail.activities.map((a) => (
-                  <li key={a._id} className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm">
-                    <span className="text-foreground">{a.body}</span>
-                    <span className="ml-2 text-xs text-muted-2">{a.type}</span>
-                  </li>
-                ))}
-              </ul>
+              {detail.activities.length === 0 ? (
+                <p className="text-xs text-muted-2">No activity yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {detail.activities.map((a) => (
+                    <li key={a._id} className="rounded-lg border border-border bg-surface-2/60 px-3 py-2">
+                      <p className="text-sm text-foreground">{a.body}</p>
+                      <span className="mt-0.5 inline-block text-[10px] font-medium uppercase tracking-[0.12em] text-muted-2">
+                        {a.type.replace("-", " ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         )}
